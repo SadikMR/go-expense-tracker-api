@@ -1,8 +1,6 @@
 package main
 
 import (
-	_ "go-expense-tracker-api/routers"
-
 	beego "github.com/beego/beego/v2/server/web"
 )
 
