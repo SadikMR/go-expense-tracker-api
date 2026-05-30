@@ -1,0 +1,14 @@
+# Real config — never commit
+conf/app.conf
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+
+# Test output
+*.test
+*.out
