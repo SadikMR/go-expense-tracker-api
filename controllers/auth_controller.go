@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"io"
 
 	"github.com/SadikMR/go-expense-tracker-api/services"
 	"github.com/SadikMR/go-expense-tracker-api/utils"
@@ -39,8 +40,14 @@ type loginInput struct {
 // @Failure      409   {object}  map[string]interface{}
 // @Router       /api/v1/auth/register [post]
 func (c *AuthController) Register() {
+	body, err := io.ReadAll(c.Ctx.Request.Body)
+	if err != nil {
+		utils.Error(c.Ctx, 400, "Failed to read request body")
+		return
+	}
+
 	var input registerInput
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &input); err != nil {
+	if err := json.Unmarshal(body, &input); err != nil {
 		utils.Error(c.Ctx, 400, "Invalid request body")
 		return
 	}
@@ -57,7 +64,7 @@ func (c *AuthController) Register() {
 		return
 	}
 
-	err := services.Register(input.Name, input.Email, input.Password)
+	err = services.Register(input.Name, input.Email, input.Password)
 	if errors.Is(err, services.ErrEmailExists) {
 		logs.Warn("[Auth] Register attempt with existing email: %s", input.Email)
 		utils.Error(c.Ctx, 409, "Email already exists")
@@ -69,7 +76,6 @@ func (c *AuthController) Register() {
 		return
 	}
 
-	// NOTE: never log the password — log only safe fields
 	logs.Info("[Auth] New user registered: name=%s email=%s", input.Name, input.Email)
 	utils.Success(c.Ctx, 201, "User registered successfully", nil)
 }
@@ -86,8 +92,14 @@ func (c *AuthController) Register() {
 // @Failure      401   {object}  map[string]interface{}
 // @Router       /api/v1/auth/login [post]
 func (c *AuthController) Login() {
+	body, err := io.ReadAll(c.Ctx.Request.Body)
+	if err != nil {
+		utils.Error(c.Ctx, 400, "Failed to read request body")
+		return
+	}
+
 	var input loginInput
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &input); err != nil {
+	if err := json.Unmarshal(body, &input); err != nil {
 		utils.Error(c.Ctx, 400, "Invalid request body")
 		return
 	}
@@ -98,7 +110,6 @@ func (c *AuthController) Login() {
 
 	user, err := services.Login(input.Email, input.Password)
 	if errors.Is(err, services.ErrInvalidCreds) {
-		// Warn because repeated failures could indicate a brute-force attempt
 		logs.Warn("[Auth] Failed login attempt: email=%s", input.Email)
 		utils.Error(c.Ctx, 401, "Invalid email or password")
 		return
@@ -109,7 +120,6 @@ func (c *AuthController) Login() {
 		return
 	}
 
-	// NOTE: never log the password — log only safe fields
 	logs.Info("[Auth] Login successful: user_id=%d email=%s", user.ID, user.Email)
 	utils.Success(c.Ctx, 200, "Login successful", map[string]interface{}{
 		"user_id": user.ID,
