@@ -1,14 +1,19 @@
-# Real config — never commit
+# Environment config (real file, may contain local settings)
 conf/app.conf
 
-# Go build artifacts
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-/bin/
+# Logs (runtime generated)
+logs/
 
-# Test output
-*.test
+# Data files (CSV storage / local DB)
+data/
+
+# Binaries / builds
+*.exe
 *.out
+bin/
+
+# OS files
+.DS_Store
+
+# Go test/build artifacts
+*.test
