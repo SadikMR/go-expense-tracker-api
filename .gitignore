@@ -17,3 +17,6 @@ bin/
 
 # Go test/build artifacts
 *.test
+
+# Go build binary
+go-expense-tracker-api
