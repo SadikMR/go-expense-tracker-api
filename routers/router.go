@@ -13,11 +13,11 @@ func init() {
 	beego.Router("/api/v1/auth/register", &controllers.AuthController{}, "post:Register")
 	beego.Router("/api/v1/auth/login", &controllers.AuthController{}, "post:Login")
 
-	// Protected routes — auth middleware applied to all /expenses* paths
+	// Protected routes
 	beego.InsertFilter("/api/v1/expenses*", beego.BeforeRouter, middleware.AuthMiddleware)
 
-	// IMPORTANT: /expenses/summary must be registered before /expenses/:id (Day 3)
-	// Beego matches routes top to bottom — specific routes must come first
+	// summary MUST be first — before :id
+	beego.Router("/api/v1/expenses/summary", &controllers.SummaryController{}, "get:Get")
 	beego.Router("/api/v1/expenses", &controllers.ExpenseController{}, "post:Post;get:Get")
 	beego.Router("/api/v1/expenses/:id", &controllers.ExpenseController{}, "get:Get;put:Put;delete:Delete")
 }
