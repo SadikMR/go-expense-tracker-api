@@ -122,41 +122,144 @@ func TestCreateExpense(t *testing.T) {
 func TestListExpenses(t *testing.T) {
 	userID := registerAndLogin(t, "List User", "list@example.com", "secret123")
 
-	// Seed 3 expenses
-	for i := 1; i <= 3; i++ {
-		makeRequestWithHeaders(t, http.MethodPost, "/api/v1/expenses",
-			fmt.Sprintf(`{"title":"Expense %d","amount":100,"category":"Food","expense_date":"2025-06-0%d"}`, i, i),
-			authHeader(userID),
-		)
+	// Seed expenses with different dates and amounts
+	seeds := []string{
+		`{"title":"Expense A","amount":300,"category":"Food","expense_date":"2025-06-01"}`,
+		`{"title":"Expense B","amount":100,"category":"Transport","expense_date":"2025-06-15"}`,
+		`{"title":"Expense C","amount":200,"category":"Housing","expense_date":"2025-07-01"}`,
+	}
+	for _, e := range seeds {
+		makeRequestWithHeaders(t, http.MethodPost, "/api/v1/expenses", e, authHeader(userID))
 	}
 
 	tests := []struct {
-		name        string
-		path        string
-		wantStatus  int
-		wantSuccess bool
-		wantCount   int
+		name           string
+		path           string
+		wantStatus     int
+		wantSuccess    bool
+		wantCount      int
+		wantFirstTitle string
 	}{
 		{
-			name:        "list all",
+			name:        "no filters — returns all",
 			path:        "/api/v1/expenses",
 			wantStatus:  http.StatusOK,
 			wantSuccess: true,
 			wantCount:   3,
 		},
 		{
-			name:        "list with limit 2",
+			name:        "date_from only",
+			path:        "/api/v1/expenses?date_from=2025-06-15",
+			wantStatus:  http.StatusOK,
+			wantSuccess: true,
+			wantCount:   2,
+		},
+		{
+			name:        "date_to only",
+			path:        "/api/v1/expenses?date_to=2025-06-15",
+			wantStatus:  http.StatusOK,
+			wantSuccess: true,
+			wantCount:   2,
+		},
+		{
+			name:        "date range",
+			path:        "/api/v1/expenses?date_from=2025-06-01&date_to=2025-06-30",
+			wantStatus:  http.StatusOK,
+			wantSuccess: true,
+			wantCount:   2,
+		},
+		{
+			name:        "date range no match",
+			path:        "/api/v1/expenses?date_from=2024-01-01&date_to=2024-12-31",
+			wantStatus:  http.StatusOK,
+			wantSuccess: true,
+			wantCount:   0,
+		},
+		{
+			name:           "sort by amount asc — cheapest first",
+			path:           "/api/v1/expenses?sort_by=amount&sort_order=asc",
+			wantStatus:     http.StatusOK,
+			wantSuccess:    true,
+			wantCount:      3,
+			wantFirstTitle: "Expense B",
+		},
+		{
+			name:           "sort by amount desc — most expensive first",
+			path:           "/api/v1/expenses?sort_by=amount&sort_order=desc",
+			wantStatus:     http.StatusOK,
+			wantSuccess:    true,
+			wantCount:      3,
+			wantFirstTitle: "Expense A",
+		},
+		{
+			name:           "sort by expense_date asc — oldest first",
+			path:           "/api/v1/expenses?sort_by=expense_date&sort_order=asc",
+			wantStatus:     http.StatusOK,
+			wantSuccess:    true,
+			wantCount:      3,
+			wantFirstTitle: "Expense A",
+		},
+		{
+			name:           "sort by expense_date desc — newest first",
+			path:           "/api/v1/expenses?sort_by=expense_date&sort_order=desc",
+			wantStatus:     http.StatusOK,
+			wantSuccess:    true,
+			wantCount:      3,
+			wantFirstTitle: "Expense C",
+		},
+		{
+			name:           "default sort is expense_date desc",
+			path:           "/api/v1/expenses",
+			wantStatus:     http.StatusOK,
+			wantSuccess:    true,
+			wantCount:      3,
+			wantFirstTitle: "Expense C",
+		},
+		{
+			name:        "limit",
 			path:        "/api/v1/expenses?limit=2",
 			wantStatus:  http.StatusOK,
 			wantSuccess: true,
 			wantCount:   2,
 		},
 		{
-			name:        "list with limit exceeding total",
+			name:        "limit exceeding total",
 			path:        "/api/v1/expenses?limit=100",
 			wantStatus:  http.StatusOK,
 			wantSuccess: true,
 			wantCount:   3,
+		},
+		{
+			name:           "date range + sort + limit combined",
+			path:           "/api/v1/expenses?date_from=2025-06-01&date_to=2025-06-30&sort_by=amount&sort_order=asc&limit=1",
+			wantStatus:     http.StatusOK,
+			wantSuccess:    true,
+			wantCount:      1,
+			wantFirstTitle: "Expense B",
+		},
+		{
+			name:        "invalid sort_by",
+			path:        "/api/v1/expenses?sort_by=title",
+			wantStatus:  http.StatusBadRequest,
+			wantSuccess: false,
+		},
+		{
+			name:        "invalid sort_order",
+			path:        "/api/v1/expenses?sort_order=random",
+			wantStatus:  http.StatusBadRequest,
+			wantSuccess: false,
+		},
+		{
+			name:        "invalid date_from format",
+			path:        "/api/v1/expenses?date_from=01-06-2025",
+			wantStatus:  http.StatusBadRequest,
+			wantSuccess: false,
+		},
+		{
+			name:        "invalid date_to format",
+			path:        "/api/v1/expenses?date_to=01-06-2025",
+			wantStatus:  http.StatusBadRequest,
+			wantSuccess: false,
 		},
 	}
 
@@ -172,12 +275,23 @@ func TestListExpenses(t *testing.T) {
 				t.Errorf("success: want %v, got %v", tt.wantSuccess, body["success"])
 			}
 
+			if !tt.wantSuccess {
+				return
+			}
+
 			data, ok := body["data"].([]interface{})
 			if !ok {
 				t.Fatal("expected data array in response")
 			}
 			if len(data) != tt.wantCount {
 				t.Errorf("count: want %d, got %d", tt.wantCount, len(data))
+			}
+
+			if tt.wantFirstTitle != "" && len(data) > 0 {
+				first := data[0].(map[string]interface{})
+				if first["title"] != tt.wantFirstTitle {
+					t.Errorf("first title: want %q, got %q", tt.wantFirstTitle, first["title"])
+				}
 			}
 		})
 	}

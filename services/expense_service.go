@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"sort"
 
 	"github.com/SadikMR/go-expense-tracker-api/models"
 	"github.com/SadikMR/go-expense-tracker-api/utils"
@@ -10,7 +11,6 @@ import (
 
 var (
 	ErrExpenseNotFound = errors.New("expense not found")
-	ErrForbidden       = errors.New("access denied")
 )
 
 // CreateExpenseInput holds the validated fields for creating an expense.
@@ -29,6 +29,31 @@ type UpdateExpenseInput struct {
 	Category    string
 	Note        string
 	ExpenseDate string
+}
+
+// ListExpensesInput holds the optional filter and sort parameters for listing expenses.
+type ListExpensesInput struct {
+	DateFrom  string
+	DateTo    string
+	SortBy    string
+	SortOrder string
+	Limit     int
+}
+
+// filterByDate filters expenses by optional date range using direct YYYY-MM-DD string comparison.
+// Reused by both ListExpenses and GetSummary — single source of truth for date filtering.
+func filterByDate(expenses []models.Expense, dateFrom, dateTo string) []models.Expense {
+	filtered := make([]models.Expense, 0, len(expenses))
+	for _, e := range expenses {
+		if dateFrom != "" && e.ExpenseDate < dateFrom {
+			continue
+		}
+		if dateTo != "" && e.ExpenseDate > dateTo {
+			continue
+		}
+		filtered = append(filtered, e)
+	}
+	return filtered
 }
 
 // CreateExpense validates input and creates a new expense for the given user.
@@ -67,21 +92,45 @@ func CreateExpense(userID int, input CreateExpenseInput) (*models.Expense, error
 	return expense, nil
 }
 
-// ListExpenses returns expenses for a user, capped by limit.
-func ListExpenses(userID, limit int) ([]models.Expense, error) {
+// ListExpenses returns filtered and sorted expenses for a user.
+func ListExpenses(userID int, input ListExpensesInput) ([]models.Expense, error) {
 	expenses, err := models.GetExpensesByUserID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("ListExpenses: %w", err)
 	}
 
-	if limit > 0 && limit < len(expenses) {
-		return expenses[:limit], nil
+	filtered := filterByDate(expenses, input.DateFrom, input.DateTo)
+
+	sortBy := input.SortBy
+	sortOrder := input.SortOrder
+	if sortBy == "" {
+		sortBy = "expense_date"
 	}
-	return expenses, nil
+	if sortOrder == "" {
+		sortOrder = "desc"
+	}
+
+	sort.Slice(filtered, func(i, j int) bool {
+		var less bool
+		switch sortBy {
+		case "amount":
+			less = filtered[i].Amount < filtered[j].Amount
+		default:
+			less = filtered[i].ExpenseDate < filtered[j].ExpenseDate
+		}
+		if sortOrder == "asc" {
+			return less
+		}
+		return !less
+	})
+
+	if input.Limit > 0 && input.Limit < len(filtered) {
+		return filtered[:input.Limit], nil
+	}
+	return filtered, nil
 }
 
 // GetExpense returns a single expense owned by the user.
-// Returns ErrExpenseNotFound if it does not exist.
 func GetExpense(id, userID int) (*models.Expense, error) {
 	expense, err := models.GetExpenseByID(id, userID)
 	if err != nil {
@@ -131,7 +180,6 @@ func DeleteExpense(id, userID int) error {
 	if err != nil {
 		return err
 	}
-
 	if err := models.DeleteExpense(id, userID); err != nil {
 		return fmt.Errorf("DeleteExpense: %w", err)
 	}
