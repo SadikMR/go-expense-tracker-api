@@ -101,9 +101,35 @@ func (c *ExpenseController) Get() {
 		return
 	}
 
-	limit := utils.ParseLimit(c.GetString("limit"), 0)
+	dateFrom := c.GetString("date_from")
+	dateTo := c.GetString("date_to")
+	sortBy := c.GetString("sort_by")
+	sortOrder := c.GetString("sort_order")
 
-	expenses, err := services.ListExpenses(userID, limit)
+	if dateFrom != "" && !utils.ValidateDate(dateFrom) {
+		utils.Error(c.Ctx, 400, "date_from must be in YYYY-MM-DD format")
+		return
+	}
+	if dateTo != "" && !utils.ValidateDate(dateTo) {
+		utils.Error(c.Ctx, 400, "date_to must be in YYYY-MM-DD format")
+		return
+	}
+	if sortBy != "" && sortBy != "amount" && sortBy != "expense_date" {
+		utils.Error(c.Ctx, 400, "sort_by must be amount or expense_date")
+		return
+	}
+	if sortOrder != "" && sortOrder != "asc" && sortOrder != "desc" {
+		utils.Error(c.Ctx, 400, "sort_order must be asc or desc")
+		return
+	}
+
+	expenses, err := services.ListExpenses(userID, services.ListExpensesInput{
+		DateFrom:  dateFrom,
+		DateTo:    dateTo,
+		SortBy:    sortBy,
+		SortOrder: sortOrder,
+		Limit:     utils.ParseLimit(c.GetString("limit"), 0),
+	})
 	if err != nil {
 		logs.Error("[Expense] List failed: user_id=%d err=%v", userID, err)
 		utils.Error(c.Ctx, 500, "Internal server error")
