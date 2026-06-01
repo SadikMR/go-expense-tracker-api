@@ -13,12 +13,16 @@ func main() {
 	// 1. Load config first — all other layers depend on it
 	utils.InitConfig()
 
-	// 2. Init logger second — based on runmode from config
+	// 2. Init logger — based on runmode
 	utils.InitLogger(utils.AppConfig.RunMode)
 
 	// 3. Ensure CSV storage is ready before serving any request
 	if err := models.EnsureUsersCSV(); err != nil {
 		logs.Critical("[Startup] Failed to initialise users.csv: %v", err)
+		return
+	}
+	if err := models.EnsureExpensesCSV(); err != nil {
+		logs.Critical("[Startup] Failed to initialise expenses.csv: %v", err)
 		return
 	}
 
