@@ -37,8 +37,16 @@ func repoRoot(t *testing.T) string {
 	return ""
 }
 
+func dataDir(t *testing.T) string {
+	t.Helper()
+	if dir := os.Getenv("DATA_DIR"); dir != "" {
+		return dir
+	}
+	return filepath.Join(repoRoot(t), "data")
+}
+
 func expenseCSVPath(t *testing.T) string {
-	return filepath.Join(repoRoot(t), "data", "expenses.csv")
+	return filepath.Join(dataDir(t), "expenses.csv")
 }
 
 func backupExpensesCSV(t *testing.T) ([]byte, bool) {

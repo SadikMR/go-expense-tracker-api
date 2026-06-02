@@ -32,8 +32,16 @@ func repoRoot(t *testing.T) string {
 	return ""
 }
 
+func dataDir(t *testing.T) string {
+	t.Helper()
+	if dir := os.Getenv("DATA_DIR"); dir != "" {
+		return dir
+	}
+	return filepath.Join(repoRoot(t), "data")
+}
+
 func usersCSVPath(t *testing.T) string {
-	return filepath.Join(repoRoot(t), "data", "users.csv")
+	return filepath.Join(dataDir(t), "users.csv")
 }
 
 func backupFile(t *testing.T, path string) ([]byte, bool) {

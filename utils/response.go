@@ -11,6 +11,7 @@ func Success(ctx *context.Context, status int, message string, data interface{})
 
 	body := map[string]interface{}{
 		"success": true,
+		"code":    status,
 		"message": message,
 	}
 	if data != nil {
@@ -26,6 +27,7 @@ func Error(ctx *context.Context, status int, message string) {
 	ctx.Output.SetStatus(status)
 	ctx.Output.JSON(map[string]interface{}{
 		"success": false,
+		"code":    status,
 		"message": message,
 	}, false, false)
 }

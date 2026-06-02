@@ -14,10 +14,12 @@ func enterSummaryTempDir(t *testing.T) func() {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	if err := os.Mkdir(filepath.Join(tmp, "data"), 0755); err != nil {
+	dataDir := filepath.Join(tmp, "data")
+	if err := os.Mkdir(dataDir, 0755); err != nil {
 		os.RemoveAll(tmp)
 		t.Fatalf("failed to create temp data dir: %v", err)
 	}
+	t.Setenv("DATA_DIR", dataDir)
 	orig, err := os.Getwd()
 	if err != nil {
 		os.RemoveAll(tmp)

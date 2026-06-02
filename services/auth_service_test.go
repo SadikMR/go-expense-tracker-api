@@ -31,7 +31,7 @@ func serviceRepoRoot(t *testing.T) string {
 }
 
 func usersCSVPath(t *testing.T) string {
-	return filepath.Join(serviceRepoRoot(t), "data", "users.csv")
+	return filepath.Join(dataDir(t), "users.csv")
 }
 
 func backupFile(t *testing.T, path string) ([]byte, bool) {
@@ -44,22 +44,6 @@ func backupFile(t *testing.T, path string) ([]byte, bool) {
 		t.Fatalf("failed to back up file %q: %v", path, err)
 	}
 	return content, true
-}
-
-func enterRepoRoot(t *testing.T) func() {
-	t.Helper()
-	orig, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("failed to get current working directory: %v", err)
-	}
-	if err := os.Chdir(serviceRepoRoot(t)); err != nil {
-		t.Fatalf("failed to change directory to repo root: %v", err)
-	}
-	return func() {
-		if err := os.Chdir(orig); err != nil {
-			t.Fatalf("failed to restore working directory: %v", err)
-		}
-	}
 }
 
 func restoreFile(t *testing.T, path string, backup []byte, existed bool) {
@@ -84,9 +68,6 @@ func writeUsersCSV(t *testing.T, path string, rows [][]string) {
 }
 
 func TestRegisterAndLogin(t *testing.T) {
-	cleanup := enterRepoRoot(t)
-	t.Cleanup(cleanup)
-
 	path := usersCSVPath(t)
 	backup, existed := backupFile(t, path)
 	t.Cleanup(func() {

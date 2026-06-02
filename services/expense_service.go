@@ -32,10 +32,11 @@ type UpdateExpenseInput struct {
 	ExpenseDate *string
 }
 
-// ListExpensesInput holds optional filter and sort parameters.
+// ListExpensesInput holds optional filter, category, and sort parameters.
 type ListExpensesInput struct {
 	DateFrom  string
 	DateTo    string
+	Category  string
 	SortBy    string
 	SortOrder string
 	Limit     int
@@ -53,6 +54,21 @@ func filterByDate(expenses []models.Expense, dateFrom, dateTo string) []models.E
 			continue
 		}
 		filtered = append(filtered, e)
+	}
+	return filtered
+}
+
+// filterByCategory filters expenses by an optional category.
+func filterByCategory(expenses []models.Expense, category string) []models.Expense {
+	if category == "" {
+		return expenses
+	}
+
+	filtered := make([]models.Expense, 0, len(expenses))
+	for _, e := range expenses {
+		if e.Category == category {
+			filtered = append(filtered, e)
+		}
 	}
 	return filtered
 }
@@ -150,6 +166,7 @@ func ListExpenses(userID int, input ListExpensesInput) ([]models.Expense, error)
 	}
 
 	filtered := filterByDate(expenses, input.DateFrom, input.DateTo)
+	filtered = filterByCategory(filtered, input.Category)
 
 	sortBy := input.SortBy
 	sortOrder := input.SortOrder

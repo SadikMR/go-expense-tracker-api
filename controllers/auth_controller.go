@@ -29,15 +29,16 @@ type loginInput struct {
 }
 
 // Register creates a new user account.
-// @Summary      Register
-// @Description  Creates a new user account with name, email, and password
+// @Summary      Register a new user account
+// @Description  Creates a new user account. Email must be valid and password must be at least 6 characters long.
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        body  body      object  true  "Registration payload"
-// @Success      201   {object}  map[string]interface{}
-// @Failure      400   {object}  map[string]interface{}
-// @Failure      409   {object}  map[string]interface{}
+// @Param        body  body      RegisterRequest  true  "Registration payload"
+// @Success      201   {object}  RegisterResponse  "User registered successfully"
+// @Failure      400   {object}  ErrorResponse     "Validation error"
+// @Failure      409   {object}  ErrorResponse     "Email already exists"
+// @Failure      500   {object}  ErrorResponse     "Internal server error"
 // @Router       /api/v1/auth/register [post]
 func (c *AuthController) Register() {
 	body, err := io.ReadAll(c.Ctx.Request.Body)
@@ -81,15 +82,16 @@ func (c *AuthController) Register() {
 }
 
 // Login authenticates a user and returns their ID.
-// @Summary      Login
-// @Description  Authenticates a user and returns user_id for use in X-User-ID header
+// @Summary      Authenticate user
+// @Description  Authenticates a user and returns user_id for use in the X-User-ID header.
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        body  body      object  true  "Login payload"
-// @Success      200   {object}  map[string]interface{}
-// @Failure      400   {object}  map[string]interface{}
-// @Failure      401   {object}  map[string]interface{}
+// @Param        body  body      LoginRequest  true  "Login payload"
+// @Success      200   {object}  LoginResponse  "Login successful"
+// @Failure      400   {object}  ErrorResponse  "Validation error"
+// @Failure      401   {object}  ErrorResponse  "Invalid credentials"
+// @Failure      500   {object}  ErrorResponse  "Internal server error"
 // @Router       /api/v1/auth/login [post]
 func (c *AuthController) Login() {
 	body, err := io.ReadAll(c.Ctx.Request.Body)

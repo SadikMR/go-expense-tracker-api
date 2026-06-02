@@ -19,5 +19,5 @@ func init() {
 	// summary MUST be first — before :id
 	beego.Router("/api/v1/expenses/summary", &controllers.SummaryController{}, "get:Get")
 	beego.Router("/api/v1/expenses", &controllers.ExpenseController{}, "post:Post;get:Get")
-	beego.Router("/api/v1/expenses/:id", &controllers.ExpenseController{}, "get:Get;put:Put;delete:Delete")
+	beego.Router("/api/v1/expenses/:id", &controllers.ExpenseController{}, "get:GetOne;put:Put;delete:Delete")
 }

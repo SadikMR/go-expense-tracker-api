@@ -20,7 +20,7 @@ const docTemplate = `{
     "paths": {
         "/api/v1/auth/login": {
             "post": {
-                "description": "Authenticates a user and returns user_id for use in X-User-ID header",
+                "description": "Authenticates a user and returns user_id for use in the X-User-ID header.",
                 "consumes": [
                     "application/json"
                 ],
@@ -30,7 +30,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Login",
+                "summary": "Authenticate user",
                 "parameters": [
                     {
                         "description": "Login payload",
@@ -38,30 +38,33 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/controllers.LoginRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Login successful",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.LoginResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Invalid credentials",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -69,7 +72,7 @@ const docTemplate = `{
         },
         "/api/v1/auth/register": {
             "post": {
-                "description": "Creates a new user account with name, email, and password",
+                "description": "Creates a new user account. Email must be valid and password must be at least 6 characters long.",
                 "consumes": [
                     "application/json"
                 ],
@@ -79,7 +82,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Register",
+                "summary": "Register a new user account",
                 "parameters": [
                     {
                         "description": "Registration payload",
@@ -87,30 +90,33 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/controllers.RegisterRequest"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "User registered successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.RegisterResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "409": {
-                        "description": "Conflict",
+                        "description": "Email already exists",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -118,7 +124,12 @@ const docTemplate = `{
         },
         "/api/v1/expenses": {
             "get": {
-                "description": "Returns expenses for the authenticated user with optional filters and sorting",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns expenses for the authenticated user with optional date, category, sort, and limit filters.",
                 "produces": [
                     "application/json"
                 ],
@@ -129,21 +140,27 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "Authenticated user ID (returned after login). Example: 123",
                         "name": "X-User-ID",
                         "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Filter from date (YYYY-MM-DD)",
+                        "description": "Filter from date in YYYY-MM-DD format",
                         "name": "date_from",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Filter to date (YYYY-MM-DD)",
+                        "description": "Filter to date in YYYY-MM-DD format",
                         "name": "date_to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category. Allowed values: Food, Transport, Housing, Entertainment, Shopping, Healthcare, Education, Utilities, Other",
+                        "name": "category",
                         "in": "query"
                     },
                     {
@@ -160,37 +177,45 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Max number of results",
+                        "description": "Maximum number of results returned",
                         "name": "limit",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Expenses retrieved",
+                        "description": "Expenses retrieved successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ExpenseListResponse"
                         }
                     },
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
             },
             "post": {
-                "description": "Creates a new expense for the authenticated user",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a new expense for the authenticated user. Category must be one of the allowed values and expense_date must use YYYY-MM-DD.",
                 "consumes": [
                     "application/json"
                 ],
@@ -204,18 +229,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "Authenticated user ID (returned after login). Example: 123",
                         "name": "X-User-ID",
                         "in": "header",
                         "required": true
                     },
                     {
-                        "description": "Expense payload",
+                        "description": "Expense creation payload",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.expenseInput"
+                            "$ref": "#/definitions/controllers.ExpenseCreateRequest"
                         }
                     }
                 ],
@@ -223,22 +248,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Expense created successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ExpenseResponseWrapper"
                         }
                     },
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -246,7 +274,12 @@ const docTemplate = `{
         },
         "/api/v1/expenses/summary": {
             "get": {
-                "description": "Returns total amount, count and breakdown by category with optional date range filter",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns total amount, total count, and breakdown by category for the authenticated user. Date filters are inclusive.",
                 "produces": [
                     "application/json"
                 ],
@@ -257,52 +290,123 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "Authenticated user ID (returned after login). Example: 123",
                         "name": "X-User-ID",
                         "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Filter from date (YYYY-MM-DD)",
+                        "description": "Filter from date in YYYY-MM-DD format",
                         "name": "date_from",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Filter to date (YYYY-MM-DD)",
+                        "description": "Filter to date in YYYY-MM-DD format",
                         "name": "date_to",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Summary generated successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.SummaryResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
             }
         },
         "/api/v1/expenses/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns a single expense by ID. Ownership is enforced by X-User-ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "expenses"
+                ],
+                "summary": "Get expense",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Authenticated user ID (returned after login). Example: 123",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Expense ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Expense retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ExpenseResponseWrapper"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid expense ID",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Expense not found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "put": {
-                "description": "Updates an expense owned by the authenticated user",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Updates an expense owned by the authenticated user. Only fields present in the request are changed.",
                 "consumes": [
                     "application/json"
                 ],
@@ -316,7 +420,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "Authenticated user ID (returned after login). Example: 123",
                         "name": "X-User-ID",
                         "in": "header",
                         "required": true
@@ -329,12 +433,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Expense payload",
+                        "description": "Expense update payload",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.expenseInput"
+                            "$ref": "#/definitions/controllers.ExpenseUpdateRequest"
                         }
                     }
                 ],
@@ -342,35 +446,42 @@ const docTemplate = `{
                     "200": {
                         "description": "Expense updated successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ExpenseResponseWrapper"
                         }
                     },
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Expense not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
             },
             "delete": {
-                "description": "Deletes an expense owned by the authenticated user",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes an expense owned by the authenticated user.",
                 "produces": [
                     "application/json"
                 ],
@@ -381,7 +492,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "Authenticated user ID (returned after login). Example: 123",
                         "name": "X-User-ID",
                         "in": "header",
                         "required": true
@@ -398,29 +509,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Expense deleted successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.StandardResponse"
                         }
                     },
                     "400": {
-                        "description": "Invalid ID",
+                        "description": "Invalid expense ID",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Expense not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -428,7 +541,7 @@ const docTemplate = `{
         },
         "/api/v1/health": {
             "get": {
-                "description": "Returns 200 if the server is running",
+                "description": "Returns 200 if the server is running and the API is available.",
                 "produces": [
                     "application/json"
                 ],
@@ -438,10 +551,15 @@ const docTemplate = `{
                 "summary": "Health check",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Service is running",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -449,23 +567,318 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controllers.expenseInput": {
+        "controllers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code returned by the API.\nexample: 200",
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "description": "Human-readable description of the result.\nexample: OK",
+                    "type": "string"
+                },
+                "success": {
+                    "description": "Indicates whether the request succeeded.\nexample: true",
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.ExpenseCreateRequest": {
             "type": "object",
             "properties": {
                 "amount": {
+                    "description": "Expense amount. Must be greater than zero.\nrequired: true\nexample: 350.50",
                     "type": "number"
                 },
                 "category": {
+                    "description": "Expense category. Must be one of the allowed categories.\nrequired: true\nenum: Food,Transport,Housing,Entertainment,Shopping,Healthcare,Education,Utilities,Other\nexample: Food",
                     "type": "string"
                 },
                 "expense_date": {
+                    "description": "Expense date in YYYY-MM-DD format.\nrequired: true\nexample: 2025-06-10",
                     "type": "string"
                 },
                 "note": {
+                    "description": "Optional note for the expense.\nexample: Lunch with the product team",
                     "type": "string"
                 },
                 "title": {
+                    "description": "Expense title.\nrequired: true\nexample: Team lunch",
                     "type": "string"
+                }
+            }
+        },
+        "controllers.ExpenseListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code returned by the API.\nexample: 200",
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.ExpenseResponse"
+                    }
+                },
+                "message": {
+                    "description": "Human-readable description of the result.\nexample: OK",
+                    "type": "string"
+                },
+                "success": {
+                    "description": "Indicates whether the request succeeded.\nexample: true",
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.ExpenseResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Expense amount.\nexample: 350.50",
+                    "type": "number"
+                },
+                "category": {
+                    "description": "Expense category.\nexample: Food",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Creation timestamp in RFC3339 format.\nexample: 2025-06-10T14:45:00Z",
+                    "type": "string"
+                },
+                "expense_date": {
+                    "description": "Expense date in YYYY-MM-DD format.\nexample: 2025-06-10",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "Expense resource identifier.\nexample: 42",
+                    "type": "integer"
+                },
+                "note": {
+                    "description": "Optional note.\nexample: Lunch with the product team",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Expense title.\nexample: Team lunch",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "User identifier who owns the expense.\nexample: 123",
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.ExpenseResponseWrapper": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code returned by the API.\nexample: 200",
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/controllers.ExpenseResponse"
+                },
+                "message": {
+                    "description": "Human-readable description of the result.\nexample: OK",
+                    "type": "string"
+                },
+                "success": {
+                    "description": "Indicates whether the request succeeded.\nexample: true",
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.ExpenseUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Optional updated expense amount.\nexample: 42.99",
+                    "type": "number"
+                },
+                "category": {
+                    "description": "Optional updated expense category.\nenum: Food,Transport,Housing,Entertainment,Shopping,Healthcare,Education,Utilities,Other\nexample: Food",
+                    "type": "string"
+                },
+                "expense_date": {
+                    "description": "Optional updated expense date in YYYY-MM-DD format.\nexample: 2025-06-15",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "Optional updated note.\nexample: Updated note for this expense",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Optional updated expense title.\nexample: Office snacks",
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "Login email address.\nrequired: true\nformat: email\nexample: jane.doe@example.com",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "Account password.\nrequired: true\nexample: secret123",
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code returned by the API.\nexample: 200",
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/controllers.LoginResponseData"
+                },
+                "message": {
+                    "description": "Human-readable description of the result.\nexample: OK",
+                    "type": "string"
+                },
+                "success": {
+                    "description": "Indicates whether the request succeeded.\nexample: true",
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.LoginResponseData": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "Registered user email.\nexample: jane.doe@example.com",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "User display name.\nexample: Jane Doe",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "Unique user identifier.\nexample: 123",
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "Login email address.\nrequired: true\nformat: email\nexample: jane.doe@example.com",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Full name of the user.\nrequired: true\nexample: Jane Doe",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "Account password.\nrequired: true\nminLength: 6\nexample: secret123",
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code returned by the API.\nexample: 200",
+                    "type": "integer"
+                },
+                "message": {
+                    "description": "Human-readable description of the result.\nexample: OK",
+                    "type": "string"
+                },
+                "success": {
+                    "description": "Indicates whether the request succeeded.\nexample: true",
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code returned by the API.\nexample: 200",
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "description": "Human-readable description of the result.\nexample: OK",
+                    "type": "string"
+                },
+                "success": {
+                    "description": "Indicates whether the request succeeded.\nexample: true",
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.SummaryCategoryResponse": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "Category name.\nexample: Food",
+                    "type": "string"
+                },
+                "count": {
+                    "description": "Number of expenses in this category.\nexample: 3",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "Total amount for this category.\nexample: 350.50",
+                    "type": "number"
+                }
+            }
+        },
+        "controllers.SummaryResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code returned by the API.\nexample: 200",
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/controllers.SummaryResponseData"
+                },
+                "message": {
+                    "description": "Human-readable description of the result.\nexample: OK",
+                    "type": "string"
+                },
+                "success": {
+                    "description": "Indicates whether the request succeeded.\nexample: true",
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.SummaryResponseData": {
+            "type": "object",
+            "properties": {
+                "by_category": {
+                    "description": "Aggregated totals grouped by category.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.SummaryCategoryResponse"
+                    }
+                },
+                "date_from": {
+                    "description": "Applied start date filter.\nexample: 2025-06-01",
+                    "type": "string"
+                },
+                "date_to": {
+                    "description": "Applied end date filter.\nexample: 2025-06-30",
+                    "type": "string"
+                },
+                "total_amount": {
+                    "description": "Total amount for the selected date range.\nexample: 650.00",
+                    "type": "number"
+                },
+                "total_count": {
+                    "description": "Total count of matching expenses.\nexample: 5",
+                    "type": "integer"
                 }
             }
         }
@@ -481,12 +894,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "1.1",
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
 	Title:            "Go Expense Tracker API",
-	Description:      "RESTful API for tracking expenses with authentication, expense CRUD, and summary reporting.",
+	Description:      "RESTful API for tracking expenses with authentication, expense CRUD, and summary reporting. Includes recent updates for Swagger documentation, test coverage, and isolated data fixtures.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -2,16 +2,26 @@ package models
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/SadikMR/go-expense-tracker-api/utils"
 )
 
-// usersCSVPath is the single source of truth for the users data file location.
-const usersCSVPath = "data/users.csv"
-
 var userCSVHeader = []string{"id", "name", "email", "password", "created_at"}
+
+func usersCSVPath() string {
+	return filepath.Join(dataDir(), "users.csv")
+}
+
+func dataDir() string {
+	if dir := os.Getenv("DATA_DIR"); dir != "" {
+		return dir
+	}
+	return "data"
+}
 
 // User represents a registered user in the system.
 type User struct {
@@ -24,12 +34,12 @@ type User struct {
 
 // EnsureUsersCSV creates the users CSV file with its header if it does not exist.
 func EnsureUsersCSV() error {
-	return utils.EnsureCSVExists(usersCSVPath, userCSVHeader)
+	return utils.EnsureCSVExists(usersCSVPath(), userCSVHeader)
 }
 
 // GetAllUsers returns every user record from the CSV file.
 func GetAllUsers() ([]User, error) {
-	rows, err := utils.ReadCSV(usersCSVPath)
+	rows, err := utils.ReadCSV(usersCSVPath())
 	if err != nil {
 		return nil, fmt.Errorf("GetAllUsers: %w", err)
 	}
@@ -78,7 +88,7 @@ func GetUserByID(id int) (*User, error) {
 // CreateUser appends a new user record to the CSV file.
 func CreateUser(u *User) error {
 	u.CreatedAt = time.Now().UTC().Format(time.RFC3339)
-	if err := utils.AppendCSV(usersCSVPath, userToRow(u)); err != nil {
+	if err := utils.AppendCSV(usersCSVPath(), userToRow(u)); err != nil {
 		return fmt.Errorf("CreateUser: %w", err)
 	}
 	return nil

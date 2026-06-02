@@ -177,6 +177,14 @@ func TestListExpenses(t *testing.T) {
 			wantCount:   2,
 		},
 		{
+			name:           "filter by category",
+			path:           "/api/v1/expenses?category=Food",
+			wantStatus:     http.StatusOK,
+			wantSuccess:    true,
+			wantCount:      1,
+			wantFirstTitle: "Expense A",
+		},
+		{
 			name:           "sort by amount asc",
 			path:           "/api/v1/expenses?sort_by=amount&sort_order=asc",
 			wantStatus:     http.StatusOK,

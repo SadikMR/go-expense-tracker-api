@@ -17,22 +17,6 @@ type ExpenseController struct {
 	beego.Controller
 }
 
-type expenseInput struct {
-	Title       string  `json:"title"`
-	Amount      float64 `json:"amount"`
-	Category    string  `json:"category"`
-	Note        string  `json:"note"`
-	ExpenseDate string  `json:"expense_date"`
-}
-
-type expenseUpdateInput struct {
-	Title       *string  `json:"title"`
-	Amount      *float64 `json:"amount"`
-	Category    *string  `json:"category"`
-	Note        *string  `json:"note"`
-	ExpenseDate *string  `json:"expense_date"`
-}
-
 // userIDFromHeader reads and parses the X-User-ID header.
 func userIDFromHeader(c *beego.Controller) (int, bool) {
 	return utils.ParseID(c.Ctx.Input.Header("X-User-ID"))
@@ -53,15 +37,17 @@ func handleServiceError(ctx *beego.Controller, tag string, err error) {
 
 // Post creates a new expense for the authenticated user.
 // @Summary      Create expense
-// @Description  Creates a new expense for the authenticated user
+// @Description  Creates a new expense for the authenticated user. Category must be one of the allowed values and expense_date must use YYYY-MM-DD.
 // @Tags         expenses
 // @Accept       json
 // @Produce      json
-// @Param        X-User-ID  header    int                     true  "User ID"
-// @Param        body       body      expenseInput            true  "Expense payload"
-// @Success      201        {object}  map[string]interface{}  "Expense created successfully"
-// @Failure      400        {object}  map[string]interface{}  "Validation error"
-// @Failure      401        {object}  map[string]interface{}  "Unauthorized"
+// @Security     ApiKeyAuth
+// @Param        X-User-ID  header    int                    true  "Authenticated user ID (returned after login). Example: 123"
+// @Param        body       body      ExpenseCreateRequest  true  "Expense creation payload"
+// @Success      201        {object}  ExpenseResponseWrapper  "Expense created successfully"
+// @Failure      400        {object}  ErrorResponse            "Validation error"
+// @Failure      401        {object}  ErrorResponse            "Unauthorized"
+// @Failure      500        {object}  ErrorResponse            "Internal server error"
 // @Router       /api/v1/expenses [post]
 func (c *ExpenseController) Post() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -76,7 +62,7 @@ func (c *ExpenseController) Post() {
 		return
 	}
 
-	var input expenseInput
+	var input ExpenseCreateRequest
 	if err := json.Unmarshal(body, &input); err != nil {
 		utils.Error(c.Ctx, 400, "Invalid request body")
 		return
@@ -98,20 +84,23 @@ func (c *ExpenseController) Post() {
 	utils.Success(c.Ctx, 201, "Expense created successfully", expense)
 }
 
-// Get returns a list of expenses or a single expense.
+// Get returns a list of expenses for the authenticated user.
 // @Summary      List expenses
-// @Description  Returns expenses for the authenticated user with optional filters and sorting
+// @Description  Returns expenses for the authenticated user with optional date, category, sort, and limit filters.
 // @Tags         expenses
 // @Produce      json
-// @Param        X-User-ID   header    int                     true   "User ID"
-// @Param        date_from   query     string                  false  "Filter from date (YYYY-MM-DD)"
-// @Param        date_to     query     string                  false  "Filter to date (YYYY-MM-DD)"
-// @Param        sort_by     query     string                  false  "Sort field: amount or expense_date"
-// @Param        sort_order  query     string                  false  "Sort direction: asc or desc (default: desc)"
-// @Param        limit       query     int                     false  "Max number of results"
-// @Success      200         {object}  map[string]interface{}  "Expenses retrieved"
-// @Failure      400         {object}  map[string]interface{}  "Validation error"
-// @Failure      401         {object}  map[string]interface{}  "Unauthorized"
+// @Security     ApiKeyAuth
+// @Param        X-User-ID   header    int     true   "Authenticated user ID (returned after login). Example: 123"
+// @Param        date_from   query     string  false  "Filter from date in YYYY-MM-DD format"
+// @Param        date_to     query     string  false  "Filter to date in YYYY-MM-DD format"
+// @Param        category    query     string  false  "Filter by category. Allowed values: Food, Transport, Housing, Entertainment, Shopping, Healthcare, Education, Utilities, Other"
+// @Param        sort_by     query     string  false  "Sort field: amount or expense_date"
+// @Param        sort_order  query     string  false  "Sort direction: asc or desc (default: desc)"
+// @Param        limit       query     int     false  "Maximum number of results returned"
+// @Success      200         {object}  ExpenseListResponse  "Expenses retrieved successfully"
+// @Failure      400         {object}  ErrorResponse        "Validation error"
+// @Failure      401         {object}  ErrorResponse        "Unauthorized"
+// @Failure      500         {object}  ErrorResponse        "Internal server error"
 // @Router       /api/v1/expenses [get]
 func (c *ExpenseController) Get() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -120,11 +109,7 @@ func (c *ExpenseController) Get() {
 		return
 	}
 
-	if idParam := c.Ctx.Input.Param(":id"); idParam != "" {
-		c.getOne(userID, idParam)
-		return
-	}
-
+	category := c.GetString("category")
 	dateFrom := c.GetString("date_from")
 	dateTo := c.GetString("date_to")
 	sortBy := c.GetString("sort_by")
@@ -136,6 +121,10 @@ func (c *ExpenseController) Get() {
 	}
 	if dateTo != "" && !utils.ValidateDate(dateTo) {
 		utils.Error(c.Ctx, 400, "date_to must be in YYYY-MM-DD format")
+		return
+	}
+	if category != "" && !utils.ValidateCategory(category) {
+		utils.Error(c.Ctx, 400, "Invalid category")
 		return
 	}
 	if sortBy != "" && sortBy != "amount" && sortBy != "expense_date" {
@@ -150,6 +139,7 @@ func (c *ExpenseController) Get() {
 	expenses, err := services.ListExpenses(userID, services.ListExpensesInput{
 		DateFrom:  dateFrom,
 		DateTo:    dateTo,
+		Category:  category,
 		SortBy:    sortBy,
 		SortOrder: sortOrder,
 		Limit:     utils.ParseLimit(c.GetString("limit"), 0),
@@ -164,9 +154,28 @@ func (c *ExpenseController) Get() {
 	utils.Success(c.Ctx, 200, "Expenses retrieved", expenses)
 }
 
-// getOne handles GET /api/v1/expenses/:id
-func (c *ExpenseController) getOne(userID int, idParam string) {
-	id, ok := utils.ParseID(idParam)
+// GetOne returns a single expense owned by the authenticated user.
+// @Summary      Get expense
+// @Description  Returns a single expense by ID. Ownership is enforced by X-User-ID.
+// @Tags         expenses
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        X-User-ID  header    int                    true  "Authenticated user ID (returned after login). Example: 123"
+// @Param        id         path      int                    true  "Expense ID"
+// @Success      200        {object}  ExpenseResponseWrapper  "Expense retrieved successfully"
+// @Failure      400        {object}  ErrorResponse            "Invalid expense ID"
+// @Failure      401        {object}  ErrorResponse            "Unauthorized"
+// @Failure      404        {object}  ErrorResponse            "Expense not found"
+// @Failure      500        {object}  ErrorResponse            "Internal server error"
+// @Router       /api/v1/expenses/{id} [get]
+func (c *ExpenseController) GetOne() {
+	userID, ok := userIDFromHeader(&c.Controller)
+	if !ok {
+		utils.Error(c.Ctx, 401, "Unauthorized")
+		return
+	}
+
+	id, ok := utils.ParseID(c.Ctx.Input.Param(":id"))
 	if !ok {
 		utils.Error(c.Ctx, 400, "Invalid expense ID")
 		return
@@ -188,17 +197,19 @@ func (c *ExpenseController) getOne(userID int, idParam string) {
 
 // Put updates an existing expense owned by the authenticated user.
 // @Summary      Update expense
-// @Description  Updates an expense owned by the authenticated user
+// @Description  Updates an expense owned by the authenticated user. Only fields present in the request are changed.
 // @Tags         expenses
 // @Accept       json
 // @Produce      json
-// @Param        X-User-ID  header    int                     true  "User ID"
+// @Security     ApiKeyAuth
+// @Param        X-User-ID  header    int                     true  "Authenticated user ID (returned after login). Example: 123"
 // @Param        id         path      int                     true  "Expense ID"
-// @Param        body       body      expenseInput            true  "Expense payload"
-// @Success      200        {object}  map[string]interface{}  "Expense updated successfully"
-// @Failure      400        {object}  map[string]interface{}  "Validation error"
-// @Failure      401        {object}  map[string]interface{}  "Unauthorized"
-// @Failure      404        {object}  map[string]interface{}  "Expense not found"
+// @Param        body       body      ExpenseUpdateRequest   true  "Expense update payload"
+// @Success      200        {object}  ExpenseResponseWrapper  "Expense updated successfully"
+// @Failure      400        {object}  ErrorResponse            "Validation error"
+// @Failure      401        {object}  ErrorResponse            "Unauthorized"
+// @Failure      404        {object}  ErrorResponse            "Expense not found"
+// @Failure      500        {object}  ErrorResponse            "Internal server error"
 // @Router       /api/v1/expenses/{id} [put]
 func (c *ExpenseController) Put() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -219,7 +230,7 @@ func (c *ExpenseController) Put() {
 		return
 	}
 
-	var input expenseUpdateInput
+	var input ExpenseUpdateRequest
 	if err := json.Unmarshal(body, &input); err != nil {
 		utils.Error(c.Ctx, 400, "Invalid request body")
 		return
@@ -247,15 +258,17 @@ func (c *ExpenseController) Put() {
 
 // Delete removes an expense owned by the authenticated user.
 // @Summary      Delete expense
-// @Description  Deletes an expense owned by the authenticated user
+// @Description  Deletes an expense owned by the authenticated user.
 // @Tags         expenses
 // @Produce      json
-// @Param        X-User-ID  header    int                     true  "User ID"
+// @Security     ApiKeyAuth
+// @Param        X-User-ID  header    int                     true  "Authenticated user ID (returned after login). Example: 123"
 // @Param        id         path      int                     true  "Expense ID"
-// @Success      200        {object}  map[string]interface{}  "Expense deleted successfully"
-// @Failure      400        {object}  map[string]interface{}  "Invalid ID"
-// @Failure      401        {object}  map[string]interface{}  "Unauthorized"
-// @Failure      404        {object}  map[string]interface{}  "Expense not found"
+// @Success      200        {object}  StandardResponse  "Expense deleted successfully"
+// @Failure      400        {object}  ErrorResponse     "Invalid expense ID"
+// @Failure      401        {object}  ErrorResponse     "Unauthorized"
+// @Failure      404        {object}  ErrorResponse     "Expense not found"
+// @Failure      500        {object}  ErrorResponse     "Internal server error"
 // @Router       /api/v1/expenses/{id} [delete]
 func (c *ExpenseController) Delete() {
 	userID, ok := userIDFromHeader(&c.Controller)

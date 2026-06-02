@@ -1,17 +1,350 @@
 basePath: /
 definitions:
-  controllers.expenseInput:
+  controllers.ErrorResponse:
+    properties:
+      code:
+        description: |-
+          HTTP status code returned by the API.
+          example: 200
+        type: integer
+      data: {}
+      message:
+        description: |-
+          Human-readable description of the result.
+          example: OK
+        type: string
+      success:
+        description: |-
+          Indicates whether the request succeeded.
+          example: true
+        type: boolean
+    type: object
+  controllers.ExpenseCreateRequest:
     properties:
       amount:
+        description: |-
+          Expense amount. Must be greater than zero.
+          required: true
+          example: 350.50
         type: number
       category:
+        description: |-
+          Expense category. Must be one of the allowed categories.
+          required: true
+          enum: Food,Transport,Housing,Entertainment,Shopping,Healthcare,Education,Utilities,Other
+          example: Food
         type: string
       expense_date:
+        description: |-
+          Expense date in YYYY-MM-DD format.
+          required: true
+          example: 2025-06-10
         type: string
       note:
+        description: |-
+          Optional note for the expense.
+          example: Lunch with the product team
         type: string
       title:
+        description: |-
+          Expense title.
+          required: true
+          example: Team lunch
         type: string
+    type: object
+  controllers.ExpenseListResponse:
+    properties:
+      code:
+        description: |-
+          HTTP status code returned by the API.
+          example: 200
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/controllers.ExpenseResponse'
+        type: array
+      message:
+        description: |-
+          Human-readable description of the result.
+          example: OK
+        type: string
+      success:
+        description: |-
+          Indicates whether the request succeeded.
+          example: true
+        type: boolean
+    type: object
+  controllers.ExpenseResponse:
+    properties:
+      amount:
+        description: |-
+          Expense amount.
+          example: 350.50
+        type: number
+      category:
+        description: |-
+          Expense category.
+          example: Food
+        type: string
+      created_at:
+        description: |-
+          Creation timestamp in RFC3339 format.
+          example: 2025-06-10T14:45:00Z
+        type: string
+      expense_date:
+        description: |-
+          Expense date in YYYY-MM-DD format.
+          example: 2025-06-10
+        type: string
+      id:
+        description: |-
+          Expense resource identifier.
+          example: 42
+        type: integer
+      note:
+        description: |-
+          Optional note.
+          example: Lunch with the product team
+        type: string
+      title:
+        description: |-
+          Expense title.
+          example: Team lunch
+        type: string
+      user_id:
+        description: |-
+          User identifier who owns the expense.
+          example: 123
+        type: integer
+    type: object
+  controllers.ExpenseResponseWrapper:
+    properties:
+      code:
+        description: |-
+          HTTP status code returned by the API.
+          example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/controllers.ExpenseResponse'
+      message:
+        description: |-
+          Human-readable description of the result.
+          example: OK
+        type: string
+      success:
+        description: |-
+          Indicates whether the request succeeded.
+          example: true
+        type: boolean
+    type: object
+  controllers.ExpenseUpdateRequest:
+    properties:
+      amount:
+        description: |-
+          Optional updated expense amount.
+          example: 42.99
+        type: number
+      category:
+        description: |-
+          Optional updated expense category.
+          enum: Food,Transport,Housing,Entertainment,Shopping,Healthcare,Education,Utilities,Other
+          example: Food
+        type: string
+      expense_date:
+        description: |-
+          Optional updated expense date in YYYY-MM-DD format.
+          example: 2025-06-15
+        type: string
+      note:
+        description: |-
+          Optional updated note.
+          example: Updated note for this expense
+        type: string
+      title:
+        description: |-
+          Optional updated expense title.
+          example: Office snacks
+        type: string
+    type: object
+  controllers.LoginRequest:
+    properties:
+      email:
+        description: |-
+          Login email address.
+          required: true
+          format: email
+          example: jane.doe@example.com
+        type: string
+      password:
+        description: |-
+          Account password.
+          required: true
+          example: secret123
+        type: string
+    type: object
+  controllers.LoginResponse:
+    properties:
+      code:
+        description: |-
+          HTTP status code returned by the API.
+          example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/controllers.LoginResponseData'
+      message:
+        description: |-
+          Human-readable description of the result.
+          example: OK
+        type: string
+      success:
+        description: |-
+          Indicates whether the request succeeded.
+          example: true
+        type: boolean
+    type: object
+  controllers.LoginResponseData:
+    properties:
+      email:
+        description: |-
+          Registered user email.
+          example: jane.doe@example.com
+        type: string
+      name:
+        description: |-
+          User display name.
+          example: Jane Doe
+        type: string
+      user_id:
+        description: |-
+          Unique user identifier.
+          example: 123
+        type: integer
+    type: object
+  controllers.RegisterRequest:
+    properties:
+      email:
+        description: |-
+          Login email address.
+          required: true
+          format: email
+          example: jane.doe@example.com
+        type: string
+      name:
+        description: |-
+          Full name of the user.
+          required: true
+          example: Jane Doe
+        type: string
+      password:
+        description: |-
+          Account password.
+          required: true
+          minLength: 6
+          example: secret123
+        type: string
+    type: object
+  controllers.RegisterResponse:
+    properties:
+      code:
+        description: |-
+          HTTP status code returned by the API.
+          example: 200
+        type: integer
+      message:
+        description: |-
+          Human-readable description of the result.
+          example: OK
+        type: string
+      success:
+        description: |-
+          Indicates whether the request succeeded.
+          example: true
+        type: boolean
+    type: object
+  controllers.StandardResponse:
+    properties:
+      code:
+        description: |-
+          HTTP status code returned by the API.
+          example: 200
+        type: integer
+      data: {}
+      message:
+        description: |-
+          Human-readable description of the result.
+          example: OK
+        type: string
+      success:
+        description: |-
+          Indicates whether the request succeeded.
+          example: true
+        type: boolean
+    type: object
+  controllers.SummaryCategoryResponse:
+    properties:
+      category:
+        description: |-
+          Category name.
+          example: Food
+        type: string
+      count:
+        description: |-
+          Number of expenses in this category.
+          example: 3
+        type: integer
+      total:
+        description: |-
+          Total amount for this category.
+          example: 350.50
+        type: number
+    type: object
+  controllers.SummaryResponse:
+    properties:
+      code:
+        description: |-
+          HTTP status code returned by the API.
+          example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/controllers.SummaryResponseData'
+      message:
+        description: |-
+          Human-readable description of the result.
+          example: OK
+        type: string
+      success:
+        description: |-
+          Indicates whether the request succeeded.
+          example: true
+        type: boolean
+    type: object
+  controllers.SummaryResponseData:
+    properties:
+      by_category:
+        description: Aggregated totals grouped by category.
+        items:
+          $ref: '#/definitions/controllers.SummaryCategoryResponse'
+        type: array
+      date_from:
+        description: |-
+          Applied start date filter.
+          example: 2025-06-01
+        type: string
+      date_to:
+        description: |-
+          Applied end date filter.
+          example: 2025-06-30
+        type: string
+      total_amount:
+        description: |-
+          Total amount for the selected date range.
+          example: 650.00
+        type: number
+      total_count:
+        description: |-
+          Total count of matching expenses.
+          example: 5
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -19,93 +352,103 @@ info:
     email: support@example.com
     name: API Support
   description: RESTful API for tracking expenses with authentication, expense CRUD,
-    and summary reporting.
+    and summary reporting. Includes recent updates for Swagger documentation, test
+    coverage, and isolated data fixtures.
   title: Go Expense Tracker API
-  version: "1.0"
+  version: "1.1"
 paths:
   /api/v1/auth/login:
     post:
       consumes:
       - application/json
-      description: Authenticates a user and returns user_id for use in X-User-ID header
+      description: Authenticates a user and returns user_id for use in the X-User-ID
+        header.
       parameters:
       - description: Login payload
         in: body
         name: body
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/controllers.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Login successful
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.LoginResponse'
         "400":
-          description: Bad Request
+          description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "401":
-          description: Unauthorized
+          description: Invalid credentials
           schema:
-            additionalProperties: true
-            type: object
-      summary: Login
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Authenticate user
       tags:
       - auth
   /api/v1/auth/register:
     post:
       consumes:
       - application/json
-      description: Creates a new user account with name, email, and password
+      description: Creates a new user account. Email must be valid and password must
+        be at least 6 characters long.
       parameters:
       - description: Registration payload
         in: body
         name: body
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/controllers.RegisterRequest'
       produces:
       - application/json
       responses:
         "201":
-          description: Created
+          description: User registered successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.RegisterResponse'
         "400":
-          description: Bad Request
+          description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "409":
-          description: Conflict
+          description: Email already exists
           schema:
-            additionalProperties: true
-            type: object
-      summary: Register
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Register a new user account
       tags:
       - auth
   /api/v1/expenses:
     get:
-      description: Returns expenses for the authenticated user with optional filters
-        and sorting
+      description: Returns expenses for the authenticated user with optional date,
+        category, sort, and limit filters.
       parameters:
-      - description: User ID
+      - description: 'Authenticated user ID (returned after login). Example: 123'
         in: header
         name: X-User-ID
         required: true
         type: integer
-      - description: Filter from date (YYYY-MM-DD)
+      - description: Filter from date in YYYY-MM-DD format
         in: query
         name: date_from
         type: string
-      - description: Filter to date (YYYY-MM-DD)
+      - description: Filter to date in YYYY-MM-DD format
         in: query
         name: date_to
+        type: string
+      - description: 'Filter by category. Allowed values: Food, Transport, Housing,
+          Entertainment, Shopping, Healthcare, Education, Utilities, Other'
+        in: query
+        name: category
         type: string
       - description: 'Sort field: amount or expense_date'
         in: query
@@ -115,7 +458,7 @@ paths:
         in: query
         name: sort_order
         type: string
-      - description: Max number of results
+      - description: Maximum number of results returned
         in: query
         name: limit
         type: integer
@@ -123,65 +466,72 @@ paths:
       - application/json
       responses:
         "200":
-          description: Expenses retrieved
+          description: Expenses retrieved successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ExpenseListResponse'
         "400":
           description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List expenses
       tags:
       - expenses
     post:
       consumes:
       - application/json
-      description: Creates a new expense for the authenticated user
+      description: Creates a new expense for the authenticated user. Category must
+        be one of the allowed values and expense_date must use YYYY-MM-DD.
       parameters:
-      - description: User ID
+      - description: 'Authenticated user ID (returned after login). Example: 123'
         in: header
         name: X-User-ID
         required: true
         type: integer
-      - description: Expense payload
+      - description: Expense creation payload
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controllers.expenseInput'
+          $ref: '#/definitions/controllers.ExpenseCreateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Expense created successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ExpenseResponseWrapper'
         "400":
           description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create expense
       tags:
       - expenses
   /api/v1/expenses/{id}:
     delete:
-      description: Deletes an expense owned by the authenticated user
+      description: Deletes an expense owned by the authenticated user.
       parameters:
-      - description: User ID
+      - description: 'Authenticated user ID (returned after login). Example: 123'
         in: header
         name: X-User-ID
         required: true
@@ -197,32 +547,32 @@ paths:
         "200":
           description: Expense deleted successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.StandardResponse'
         "400":
-          description: Invalid ID
+          description: Invalid expense ID
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "404":
           description: Expense not found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete expense
       tags:
       - expenses
-    put:
-      consumes:
-      - application/json
-      description: Updates an expense owned by the authenticated user
+    get:
+      description: Returns a single expense by ID. Ownership is enforced by X-User-ID.
       parameters:
-      - description: User ID
+      - description: 'Authenticated user ID (returned after login). Example: 123'
         in: header
         name: X-User-ID
         required: true
@@ -232,53 +582,99 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Expense payload
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Expense retrieved successfully
+          schema:
+            $ref: '#/definitions/controllers.ExpenseResponseWrapper'
+        "400":
+          description: Invalid expense ID
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Expense not found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get expense
+      tags:
+      - expenses
+    put:
+      consumes:
+      - application/json
+      description: Updates an expense owned by the authenticated user. Only fields
+        present in the request are changed.
+      parameters:
+      - description: 'Authenticated user ID (returned after login). Example: 123'
+        in: header
+        name: X-User-ID
+        required: true
+        type: integer
+      - description: Expense ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Expense update payload
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controllers.expenseInput'
+          $ref: '#/definitions/controllers.ExpenseUpdateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Expense updated successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ExpenseResponseWrapper'
         "400":
           description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "404":
           description: Expense not found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update expense
       tags:
       - expenses
   /api/v1/expenses/summary:
     get:
-      description: Returns total amount, count and breakdown by category with optional
-        date range filter
+      description: Returns total amount, total count, and breakdown by category for
+        the authenticated user. Date filters are inclusive.
       parameters:
-      - description: User ID
+      - description: 'Authenticated user ID (returned after login). Example: 123'
         in: header
         name: X-User-ID
         required: true
         type: integer
-      - description: Filter from date (YYYY-MM-DD)
+      - description: Filter from date in YYYY-MM-DD format
         in: query
         name: date_from
         type: string
-      - description: Filter to date (YYYY-MM-DD)
+      - description: Filter to date in YYYY-MM-DD format
         in: query
         name: date_to
         type: string
@@ -286,34 +682,40 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Summary generated successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.SummaryResponse'
         "400":
-          description: Bad Request
+          description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Expense summary
       tags:
       - expenses
   /api/v1/health:
     get:
-      description: Returns 200 if the server is running
+      description: Returns 200 if the server is running and the API is available.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Service is running
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.StandardResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
       summary: Health check
       tags:
       - health
