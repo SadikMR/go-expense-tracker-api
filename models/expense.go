@@ -15,6 +15,9 @@ var expenseCSVHeader = []string{
 }
 
 func expensesCSVPath() string {
+	if utils.AppConfig.ExpensesCSVPath != "" {
+		return utils.AppConfig.ExpensesCSVPath
+	}
 	return filepath.Join(dataDir(), "expenses.csv")
 }
 

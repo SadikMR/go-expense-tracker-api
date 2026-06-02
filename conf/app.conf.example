@@ -1,5 +1,13 @@
+# Application settings
 appname = <your-app-name>
 httpport = <port>
 runmode = <dev|prod>
-copyrequestbody = true
 EnableDocs = true
+copyrequestbody = true
+
+# Data storage settings
+# Point data_dir at the shared CSV folder.
+# Optionally override the individual CSV file locations.
+data_dir = <path/to/data>
+users_csv_path = <path/to/data/users.csv>
+expenses_csv_path = <path/to/data/expenses.csv>

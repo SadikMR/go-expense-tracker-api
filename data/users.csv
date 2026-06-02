@@ -1,0 +1,7 @@
+id,name,email,password,created_at
+1,Existing,existing@example.com,secret,2025-01-01T00:00:00Z
+2,New User,new@example.com,password123,2026-06-02T06:45:11Z
+3,Sadik,sadik5@example.com,secret123,2026-06-02T06:58:08Z
+4,Sadik,sadik1@example.com,secret123,2026-06-02T07:00:24Z
+5,string123,sa@gmail.com,string123,2026-06-02T08:07:09Z
+6,Sadik,sadik11@example.com,secret123,2026-06-02T10:31:54Z

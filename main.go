@@ -3,7 +3,7 @@
 // @description     RESTful API for tracking expenses with authentication, expense CRUD, and summary reporting. Includes recent updates for Swagger documentation, test coverage, and isolated data fixtures.
 // @contact.name    API Support
 // @contact.email   support@example.com
-// @host            localhost:8080
+// @host            localhost
 // @BasePath        /
 // @schemes         http
 // @securityDefinitions.apikey ApiKeyAuth

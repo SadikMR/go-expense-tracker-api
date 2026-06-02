@@ -13,10 +13,16 @@ import (
 var userCSVHeader = []string{"id", "name", "email", "password", "created_at"}
 
 func usersCSVPath() string {
+	if utils.AppConfig.UsersCSVPath != "" {
+		return utils.AppConfig.UsersCSVPath
+	}
 	return filepath.Join(dataDir(), "users.csv")
 }
 
 func dataDir() string {
+	if utils.AppConfig.DataDir != "" {
+		return utils.AppConfig.DataDir
+	}
 	if dir := os.Getenv("DATA_DIR"); dir != "" {
 		return dir
 	}
