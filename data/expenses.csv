@@ -6,3 +6,4 @@ id,user_id,title,amount,category,note,expense_date,created_at
 6,2,Transport Cost,3.00,Other,Cost,2026-06-03,2026-06-02T10:32:17Z
 7,2,Transport Cost,30000.00,Other,Cost,2026-06-05,2026-06-02T10:32:48Z
 8,6,Transport Cost,30000.00,Other,Updatssed to ,2026-06-05,2026-06-02T10:32:54Z
+9,6,Transport Cost,30000.00,Other,Cost,2026-06-05,2026-06-02T12:26:45Z
