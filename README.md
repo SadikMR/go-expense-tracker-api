@@ -239,44 +239,46 @@ Run the full test suite:
 go test ./...
 ```
 
-Run tests with coverage:
+Run tests with coverage enabled:
 
 ```bash
 go test ./... -cover
 ```
 
-Generate a coverage report file:
+Generate a detailed coverage report file:
 
 ```bash
 go test ./... -coverprofile=coverage.out
 ```
 
-Inspect coverage summary:
+Inspect the coverage summary:
 
 ```bash
 go tool cover -func=coverage.out
 ```
 
-View coverage in the browser:
+Open a browser-based coverage report:
 
 ```bash
 go tool cover -html=coverage.out
 ```
 
-Run coverage across all packages:
+If you want coverage across the whole module, include `-coverpkg=./...`:
 
 ```bash
 go test ./... -coverpkg=./... -coverprofile=coverage.out
 ```
 
+Current reported coverage: **72.8% of statements** (based on the latest `coverage.out` report generated locally).
+
 ### Why these commands
 
-- `go test ./...` runs all package tests.
-- `-cover` prints basic coverage information.
-- `-coverprofile=coverage.out` saves detailed coverage data.
-- `go tool cover -func=coverage.out` summarizes coverage per function.
-- `go tool cover -html=coverage.out` opens a browsable coverage report.
-- `-coverpkg=./...` measures coverage across the entire module.
+- `go test ./...` runs all package tests in the module.
+- `-cover` prints a simple coverage summary.
+- `-coverprofile=coverage.out` writes detailed coverage data to a file.
+- `go tool cover -func=coverage.out` shows coverage by function.
+- `go tool cover -html=coverage.out` opens a browsable HTML coverage report.
+- `-coverpkg=./...` measures coverage for all packages in the module.
 
 ## Notes
 
