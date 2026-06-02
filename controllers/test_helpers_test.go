@@ -32,6 +32,7 @@ func TestMain(m *testing.M) {
 	beego.Router("/api/v1/health", &HealthController{}, "get:Get")
 	beego.Router("/api/v1/auth/register", &AuthController{}, "post:Register")
 	beego.Router("/api/v1/auth/login", &AuthController{}, "post:Login")
+	beego.Router("/api/v1/expenses/summary", &SummaryController{}, "get:Get")
 	beego.Router("/api/v1/expenses", &ExpenseController{}, "post:Post;get:Get")
 	beego.Router("/api/v1/expenses/:id", &ExpenseController{}, "get:Get;put:Put;delete:Delete")
 
