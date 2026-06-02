@@ -14,18 +14,18 @@ type SummaryController struct {
 }
 
 // Get returns a summary of expenses for the authenticated user.
-// Both date_from and date_to are optional query parameters.
-//
 // @Summary      Expense summary
-// @Description  Returns total amount, count and breakdown by category with optional date range filter
+// @Description  Returns total amount, total count, and breakdown by category for the authenticated user. Date filters are inclusive.
 // @Tags         expenses
 // @Produce      json
-// @Param        X-User-ID  header    int     true   "User ID"
-// @Param        date_from  query     string  false  "Filter from date (YYYY-MM-DD)"
-// @Param        date_to    query     string  false  "Filter to date (YYYY-MM-DD)"
-// @Success      200        {object}  map[string]interface{}
-// @Failure      400        {object}  map[string]interface{}
-// @Failure      401        {object}  map[string]interface{}
+// @Security     ApiKeyAuth
+// @Param        X-User-ID  header    int     true   "Authenticated user ID (returned after login). Example: 123"
+// @Param        date_from  query     string  false  "Filter from date in YYYY-MM-DD format"
+// @Param        date_to    query     string  false  "Filter to date in YYYY-MM-DD format"
+// @Success      200        {object}  controllers.SummaryResponse  "Summary generated successfully"
+// @Failure      400        {object}  controllers.ErrorResponse400    "Validation error"
+// @Failure      401        {object}  controllers.ErrorResponse401    "Unauthorized"
+// @Failure      500        {object}  controllers.ErrorResponse500    "Internal server error"
 // @Router       /api/v1/expenses/summary [get]
 func (c *SummaryController) Get() {
 	userID, ok := userIDFromHeader(&c.Controller)

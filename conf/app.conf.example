@@ -1,5 +1,17 @@
-appname = <your-app-name>
-httpport = <port>
-runmode = <dev|prod>
-copyrequestbody = true
+# Application settings
+appname = go-expense-tracker-api
+httpport = 8080
+runmode = dev
 EnableDocs = true
+copyrequestbody = true
+
+# Data storage settings
+# Use a folder path for CSV persistence.
+# If individual CSV paths are omitted, data_dir is used.
+data_dir = data
+users_csv_path = data/users.csv
+expenses_csv_path = data/expenses.csv
+
+# Logging settings
+# File logging is enabled in production mode only.
+log_dir = logs

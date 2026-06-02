@@ -2,18 +2,23 @@ package models
 
 import (
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/SadikMR/go-expense-tracker-api/utils"
 )
 
-// expensesCSVPath is the single source of truth for the expenses data file.
-const expensesCSVPath = "data/expenses.csv"
-
 var expenseCSVHeader = []string{
 	"id", "user_id", "title", "amount",
 	"category", "note", "expense_date", "created_at",
+}
+
+func expensesCSVPath() string {
+	if utils.AppConfig.ExpensesCSVPath != "" {
+		return utils.AppConfig.ExpensesCSVPath
+	}
+	return filepath.Join(dataDir(), "expenses.csv")
 }
 
 // Expense represents a single expense record belonging to a user.
@@ -30,12 +35,12 @@ type Expense struct {
 
 // EnsureExpensesCSV creates the expenses CSV file with its header if it does not exist.
 func EnsureExpensesCSV() error {
-	return utils.EnsureCSVExists(expensesCSVPath, expenseCSVHeader)
+	return utils.EnsureCSVExists(expensesCSVPath(), expenseCSVHeader)
 }
 
 // GetExpensesByUserID returns all expenses belonging to a specific user.
 func GetExpensesByUserID(userID int) ([]Expense, error) {
-	rows, err := utils.ReadCSV(expensesCSVPath)
+	rows, err := utils.ReadCSV(expensesCSVPath())
 	if err != nil {
 		return nil, fmt.Errorf("GetExpensesByUserID: %w", err)
 	}
@@ -71,7 +76,7 @@ func GetExpenseByID(id, userID int) (*Expense, error) {
 // CreateExpense appends a new expense record to the CSV.
 func CreateExpense(e *Expense) error {
 	e.CreatedAt = time.Now().UTC().Format(time.RFC3339)
-	if err := utils.AppendCSV(expensesCSVPath, expenseToRow(e)); err != nil {
+	if err := utils.AppendCSV(expensesCSVPath(), expenseToRow(e)); err != nil {
 		return fmt.Errorf("CreateExpense: %w", err)
 	}
 	return nil
@@ -79,7 +84,7 @@ func CreateExpense(e *Expense) error {
 
 // UpdateExpense rewrites the CSV replacing the matching expense row.
 func UpdateExpense(updated *Expense) error {
-	rows, err := utils.ReadCSV(expensesCSVPath)
+	rows, err := utils.ReadCSV(expensesCSVPath())
 	if err != nil {
 		return fmt.Errorf("UpdateExpense: %w", err)
 	}
@@ -101,12 +106,12 @@ func UpdateExpense(updated *Expense) error {
 		return fmt.Errorf("UpdateExpense: expense id=%d not found", updated.ID)
 	}
 
-	return utils.RewriteCSV(expensesCSVPath, expenseCSVHeader, rows)
+	return utils.RewriteCSV(expensesCSVPath(), expenseCSVHeader, rows)
 }
 
 // DeleteExpense rewrites the CSV excluding the matching expense row.
 func DeleteExpense(id, userID int) error {
-	rows, err := utils.ReadCSV(expensesCSVPath)
+	rows, err := utils.ReadCSV(expensesCSVPath())
 	if err != nil {
 		return fmt.Errorf("DeleteExpense: %w", err)
 	}
@@ -129,12 +134,12 @@ func DeleteExpense(id, userID int) error {
 		return fmt.Errorf("DeleteExpense: expense id=%d not found", id)
 	}
 
-	return utils.RewriteCSV(expensesCSVPath, expenseCSVHeader, filtered)
+	return utils.RewriteCSV(expensesCSVPath(), expenseCSVHeader, filtered)
 }
 
 // NextExpenseID returns the next available expense ID.
 func NextExpenseID() (int, error) {
-	rows, err := utils.ReadCSV(expensesCSVPath)
+	rows, err := utils.ReadCSV(expensesCSVPath())
 	if err != nil {
 		return 0, fmt.Errorf("NextExpenseID: %w", err)
 	}

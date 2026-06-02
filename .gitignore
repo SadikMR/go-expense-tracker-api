@@ -4,8 +4,6 @@ conf/app.conf
 # Logs (runtime generated)
 logs/
 
-# Data files (CSV storage / local DB)
-data/
 
 # Binaries / builds
 *.exe

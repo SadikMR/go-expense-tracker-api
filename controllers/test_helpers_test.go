@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -19,9 +20,19 @@ func TestMain(m *testing.M) {
 	utils.InitConfig()
 	utils.InitLogger("dev")
 
-	if err := os.MkdirAll("data", 0755); err != nil {
+	tmp, err := os.MkdirTemp("", "controllers-test-*")
+	if err != nil {
+		panic("TestMain: failed to create temp dir: " + err.Error())
+	}
+
+	dataDir := filepath.Join(tmp, "data")
+	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		panic("TestMain: failed to create data dir: " + err.Error())
 	}
+	if err := os.Setenv("DATA_DIR", dataDir); err != nil {
+		panic("TestMain: failed to set DATA_DIR: " + err.Error())
+	}
+
 	if err := models.EnsureUsersCSV(); err != nil {
 		panic("TestMain: failed to initialise users.csv: " + err.Error())
 	}
@@ -34,11 +45,11 @@ func TestMain(m *testing.M) {
 	beego.Router("/api/v1/auth/login", &AuthController{}, "post:Login")
 	beego.Router("/api/v1/expenses/summary", &SummaryController{}, "get:Get")
 	beego.Router("/api/v1/expenses", &ExpenseController{}, "post:Post;get:Get")
-	beego.Router("/api/v1/expenses/:id", &ExpenseController{}, "get:Get;put:Put;delete:Delete")
+	beego.Router("/api/v1/expenses/:id", &ExpenseController{}, "get:GetOne;put:Put;delete:Delete")
 
 	code := m.Run()
 
-	os.RemoveAll("data")
+	os.RemoveAll(tmp)
 	os.Exit(code)
 }
 

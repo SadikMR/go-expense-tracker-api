@@ -1,0 +1,8 @@
+id,user_id,title,amount,category,note,expense_date,created_at
+2,2,Breakfast,320.00,Housing,Friday lunch,2026-06-02,2026-06-02T04:55:30Z
+3,2,Transport Cost,320.00,Transport,Transport Cost,2026-06-02,2026-06-02T04:57:46Z
+4,2,Transport Cost,320.00,Other,Cost,2026-06-03,2026-06-02T05:03:12Z
+5,2,Transport Cost,3.00,Other,Cost,2026-06-03,2026-06-02T05:15:24Z
+6,2,Transport Cost,3.00,Other,Cost,2026-06-03,2026-06-02T10:32:17Z
+7,2,Transport Cost,30000.00,Other,Cost,2026-06-05,2026-06-02T10:32:48Z
+8,6,Transport Cost,30000.00,Other,Updatssed to ,2026-06-05,2026-06-02T10:32:54Z
