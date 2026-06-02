@@ -53,6 +53,7 @@ Important settings:
 - `data_dir` — fallback directory for CSV files
 - `users_csv_path` — optional explicit users CSV path
 - `expenses_csv_path` — optional explicit expenses CSV path
+- `log_dir` — optional log directory for production log files
 
 Copy `conf/app.conf.example` to `conf/app.conf` and provide the proper values before running the app.
 

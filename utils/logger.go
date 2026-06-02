@@ -1,29 +1,26 @@
 package utils
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/beego/beego/v2/core/logs"
 )
 
 // InitLogger sets up production-grade logging
 func InitLogger(runMode string) {
-
-	// Ensure logs folder exists
-	os.MkdirAll("logs", 0755)
+	logDir := loggerDir()
 
 	if runMode == "prod" {
-		// File logging (production)
-		logs.SetLogger(logs.AdapterFile, `{
-			"filename": "logs/app.log",
-			"daily": true,
-			"maxdays": 7
-		}`)
-
+		// File logging in production only
+		os.MkdirAll(logDir, 0755)
+		logFile := filepath.Join(logDir, "app.log")
+		logs.SetLogger(logs.AdapterFile, fmt.Sprintf(`{"filename":"%s","daily":true,"maxdays":7}`, logFile))
 		logs.SetLevel(logs.LevelWarning)
 
 	} else {
-		// Console logging (development)
+		// Console logging in development
 		logs.SetLogger(logs.AdapterConsole)
 		logs.SetLevel(logs.LevelDebug)
 	}
@@ -33,4 +30,11 @@ func InitLogger(runMode string) {
 	logs.SetLogFuncCallDepth(3)
 
 	logs.Info("[Logger] initialized in %s mode", runMode)
+}
+
+func loggerDir() string {
+	if AppConfig.LogDir != "" {
+		return AppConfig.LogDir
+	}
+	return "logs"
 }

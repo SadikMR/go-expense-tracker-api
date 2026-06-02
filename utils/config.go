@@ -15,6 +15,7 @@ var AppConfig = struct {
 	DataDir         string
 	UsersCSVPath    string
 	ExpensesCSVPath string
+	LogDir          string
 }{}
 
 // InitConfig loads all values from app.conf into AppConfig.
@@ -54,5 +55,10 @@ func InitConfig() {
 	AppConfig.ExpensesCSVPath = beego.AppConfig.DefaultString("expenses_csv_path", "")
 	if AppConfig.ExpensesCSVPath == "" {
 		AppConfig.ExpensesCSVPath = os.Getenv("EXPENSES_CSV_PATH")
+	}
+
+	AppConfig.LogDir = beego.AppConfig.DefaultString("log_dir", "")
+	if AppConfig.LogDir == "" {
+		AppConfig.LogDir = os.Getenv("LOG_DIR")
 	}
 }
