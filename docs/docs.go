@@ -52,19 +52,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse400"
                         }
                     },
                     "401": {
                         "description": "Invalid credentials",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse401"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -104,19 +104,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse400"
                         }
                     },
                     "409": {
                         "description": "Email already exists",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse409"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -192,19 +192,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse400"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse401"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -254,19 +254,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse400"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse401"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -318,19 +318,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse400"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse401"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -377,25 +377,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid expense ID",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse400"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse401"
                         }
                     },
                     "404": {
                         "description": "Expense not found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse404"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -452,25 +452,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse400"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse401"
                         }
                     },
                     "404": {
                         "description": "Expense not found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse404"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -515,25 +515,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid expense ID",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse400"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse401"
                         }
                     },
                     "404": {
                         "description": "Expense not found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse404"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -559,7 +559,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse500"
                         }
                     }
                 }
@@ -567,21 +567,96 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controllers.ErrorResponse": {
+        "controllers.ErrorResponse400": {
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "HTTP status code returned by the API.\nexample: 200",
-                    "type": "integer"
+                    "description": "HTTP status code returned by the API.",
+                    "type": "integer",
+                    "example": 400
                 },
                 "data": {},
                 "message": {
-                    "description": "Human-readable description of the result.\nexample: OK",
-                    "type": "string"
+                    "description": "Human-readable description of the result.",
+                    "type": "string",
+                    "example": "Validation error"
                 },
                 "success": {
-                    "description": "Indicates whether the request succeeded.\nexample: true",
-                    "type": "boolean"
+                    "description": "Indicates whether the request succeeded.",
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "controllers.ErrorResponse401": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 401
+                },
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "Unauthorized"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "controllers.ErrorResponse404": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 404
+                },
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "Not found"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "controllers.ErrorResponse409": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 409
+                },
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "Conflict"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "controllers.ErrorResponse500": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "Internal server error"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
                 }
             }
         },
@@ -615,7 +690,8 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "description": "HTTP status code returned by the API.\nexample: 200",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "data": {
                     "type": "array",
@@ -625,11 +701,13 @@ const docTemplate = `{
                 },
                 "message": {
                     "description": "Human-readable description of the result.\nexample: OK",
-                    "type": "string"
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "description": "Indicates whether the request succeeded.\nexample: true",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
@@ -675,18 +753,21 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "description": "HTTP status code returned by the API.\nexample: 200",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "data": {
                     "$ref": "#/definitions/controllers.ExpenseResponse"
                 },
                 "message": {
                     "description": "Human-readable description of the result.\nexample: OK",
-                    "type": "string"
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "description": "Indicates whether the request succeeded.\nexample: true",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
@@ -733,18 +814,21 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "description": "HTTP status code returned by the API.\nexample: 200",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "data": {
                     "$ref": "#/definitions/controllers.LoginResponseData"
                 },
                 "message": {
                     "description": "Human-readable description of the result.\nexample: OK",
-                    "type": "string"
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "description": "Indicates whether the request succeeded.\nexample: true",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
@@ -787,15 +871,18 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "description": "HTTP status code returned by the API.\nexample: 200",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "message": {
                     "description": "Human-readable description of the result.\nexample: OK",
-                    "type": "string"
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "description": "Indicates whether the request succeeded.\nexample: true",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
@@ -804,16 +891,19 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "description": "HTTP status code returned by the API.\nexample: 200",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "data": {},
                 "message": {
                     "description": "Human-readable description of the result.\nexample: OK",
-                    "type": "string"
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "description": "Indicates whether the request succeeded.\nexample: true",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
@@ -839,18 +929,21 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "description": "HTTP status code returned by the API.\nexample: 200",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "data": {
                     "$ref": "#/definitions/controllers.SummaryResponseData"
                 },
                 "message": {
                     "description": "Human-readable description of the result.\nexample: OK",
-                    "type": "string"
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "description": "Indicates whether the request succeeded.\nexample: true",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },

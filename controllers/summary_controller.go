@@ -22,10 +22,10 @@ type SummaryController struct {
 // @Param        X-User-ID  header    int     true   "Authenticated user ID (returned after login). Example: 123"
 // @Param        date_from  query     string  false  "Filter from date in YYYY-MM-DD format"
 // @Param        date_to    query     string  false  "Filter to date in YYYY-MM-DD format"
-// @Success      200        {object}  SummaryResponse  "Summary generated successfully"
-// @Failure      400        {object}  ErrorResponse    "Validation error"
-// @Failure      401        {object}  ErrorResponse    "Unauthorized"
-// @Failure      500        {object}  ErrorResponse    "Internal server error"
+// @Success      200        {object}  controllers.SummaryResponse  "Summary generated successfully"
+// @Failure      400        {object}  controllers.ErrorResponse400    "Validation error"
+// @Failure      401        {object}  controllers.ErrorResponse401    "Unauthorized"
+// @Failure      500        {object}  controllers.ErrorResponse500    "Internal server error"
 // @Router       /api/v1/expenses/summary [get]
 func (c *SummaryController) Get() {
 	userID, ok := userIDFromHeader(&c.Controller)

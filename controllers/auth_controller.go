@@ -34,11 +34,11 @@ type loginInput struct {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        body  body      RegisterRequest  true  "Registration payload"
-// @Success      201   {object}  RegisterResponse  "User registered successfully"
-// @Failure      400   {object}  ErrorResponse     "Validation error"
-// @Failure      409   {object}  ErrorResponse     "Email already exists"
-// @Failure      500   {object}  ErrorResponse     "Internal server error"
+// @Param        body  body      controllers.RegisterRequest  true  "Registration payload"
+// @Success      201   {object}  controllers.RegisterResponse  "User registered successfully"
+// @Failure      400   {object}  controllers.ErrorResponse400     "Validation error"
+// @Failure      409   {object}  controllers.ErrorResponse409     "Email already exists"
+// @Failure      500   {object}  controllers.ErrorResponse500     "Internal server error"
 // @Router       /api/v1/auth/register [post]
 func (c *AuthController) Register() {
 	body, err := io.ReadAll(c.Ctx.Request.Body)
@@ -87,11 +87,11 @@ func (c *AuthController) Register() {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        body  body      LoginRequest  true  "Login payload"
-// @Success      200   {object}  LoginResponse  "Login successful"
-// @Failure      400   {object}  ErrorResponse  "Validation error"
-// @Failure      401   {object}  ErrorResponse  "Invalid credentials"
-// @Failure      500   {object}  ErrorResponse  "Internal server error"
+// @Param        body  body      controllers.LoginRequest  true  "Login payload"
+// @Success      200   {object}  controllers.LoginResponse  "Login successful"
+// @Failure      400   {object}  controllers.ErrorResponse400  "Validation error"
+// @Failure      401   {object}  controllers.ErrorResponse401  "Invalid credentials"
+// @Failure      500   {object}  controllers.ErrorResponse500  "Internal server error"
 // @Router       /api/v1/auth/login [post]
 func (c *AuthController) Login() {
 	body, err := io.ReadAll(c.Ctx.Request.Body)

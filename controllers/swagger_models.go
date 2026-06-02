@@ -54,15 +54,15 @@ type LoginResponseData struct {
 type ResponseEnvelope struct {
 	// Indicates whether the request succeeded.
 	// example: true
-	Success bool `json:"success"`
+	Success bool `json:"success" example:"true"`
 
 	// HTTP status code returned by the API.
 	// example: 200
-	Code int `json:"code"`
+	Code int `json:"code" example:"200"`
 
 	// Human-readable description of the result.
 	// example: OK
-	Message string `json:"message"`
+	Message string `json:"message" example:"OK"`
 }
 
 // LoginResponse is returned after a successful login.
@@ -228,5 +228,47 @@ type StandardResponse struct {
 // ErrorResponse is used for all error responses.
 type ErrorResponse struct {
 	ResponseEnvelope
+	Data interface{} `json:"data,omitempty"`
+}
+
+// Specific error response types with concrete examples per HTTP status.
+type ErrorResponse400 struct {
+	// Indicates whether the request succeeded.
+	Success bool `json:"success" example:"false"`
+
+	// HTTP status code returned by the API.
+	Code int `json:"code" example:"400"`
+
+	// Human-readable description of the result.
+	Message string `json:"message" example:"Validation error"`
+
+	Data interface{} `json:"data,omitempty"`
+}
+
+type ErrorResponse401 struct {
+	Success bool `json:"success" example:"false"`
+	Code int `json:"code" example:"401"`
+	Message string `json:"message" example:"Unauthorized"`
+	Data interface{} `json:"data,omitempty"`
+}
+
+type ErrorResponse404 struct {
+	Success bool `json:"success" example:"false"`
+	Code int `json:"code" example:"404"`
+	Message string `json:"message" example:"Not found"`
+	Data interface{} `json:"data,omitempty"`
+}
+
+type ErrorResponse409 struct {
+	Success bool `json:"success" example:"false"`
+	Code int `json:"code" example:"409"`
+	Message string `json:"message" example:"Conflict"`
+	Data interface{} `json:"data,omitempty"`
+}
+
+type ErrorResponse500 struct {
+	Success bool `json:"success" example:"false"`
+	Code int `json:"code" example:"500"`
+	Message string `json:"message" example:"Internal server error"`
 	Data interface{} `json:"data,omitempty"`
 }

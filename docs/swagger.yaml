@@ -1,22 +1,71 @@
 basePath: /
 definitions:
-  controllers.ErrorResponse:
+  controllers.ErrorResponse400:
     properties:
       code:
-        description: |-
-          HTTP status code returned by the API.
-          example: 200
+        description: HTTP status code returned by the API.
+        example: 400
         type: integer
       data: {}
       message:
-        description: |-
-          Human-readable description of the result.
-          example: OK
+        description: Human-readable description of the result.
+        example: Validation error
         type: string
       success:
-        description: |-
-          Indicates whether the request succeeded.
-          example: true
+        description: Indicates whether the request succeeded.
+        example: false
+        type: boolean
+    type: object
+  controllers.ErrorResponse401:
+    properties:
+      code:
+        example: 401
+        type: integer
+      data: {}
+      message:
+        example: Unauthorized
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  controllers.ErrorResponse404:
+    properties:
+      code:
+        example: 404
+        type: integer
+      data: {}
+      message:
+        example: Not found
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  controllers.ErrorResponse409:
+    properties:
+      code:
+        example: 409
+        type: integer
+      data: {}
+      message:
+        example: Conflict
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  controllers.ErrorResponse500:
+    properties:
+      code:
+        example: 500
+        type: integer
+      data: {}
+      message:
+        example: Internal server error
+        type: string
+      success:
+        example: false
         type: boolean
     type: object
   controllers.ExpenseCreateRequest:
@@ -58,6 +107,7 @@ definitions:
         description: |-
           HTTP status code returned by the API.
           example: 200
+        example: 200
         type: integer
       data:
         items:
@@ -67,11 +117,13 @@ definitions:
         description: |-
           Human-readable description of the result.
           example: OK
+        example: OK
         type: string
       success:
         description: |-
           Indicates whether the request succeeded.
           example: true
+        example: true
         type: boolean
     type: object
   controllers.ExpenseResponse:
@@ -123,6 +175,7 @@ definitions:
         description: |-
           HTTP status code returned by the API.
           example: 200
+        example: 200
         type: integer
       data:
         $ref: '#/definitions/controllers.ExpenseResponse'
@@ -130,11 +183,13 @@ definitions:
         description: |-
           Human-readable description of the result.
           example: OK
+        example: OK
         type: string
       success:
         description: |-
           Indicates whether the request succeeded.
           example: true
+        example: true
         type: boolean
     type: object
   controllers.ExpenseUpdateRequest:
@@ -188,6 +243,7 @@ definitions:
         description: |-
           HTTP status code returned by the API.
           example: 200
+        example: 200
         type: integer
       data:
         $ref: '#/definitions/controllers.LoginResponseData'
@@ -195,11 +251,13 @@ definitions:
         description: |-
           Human-readable description of the result.
           example: OK
+        example: OK
         type: string
       success:
         description: |-
           Indicates whether the request succeeded.
           example: true
+        example: true
         type: boolean
     type: object
   controllers.LoginResponseData:
@@ -249,16 +307,19 @@ definitions:
         description: |-
           HTTP status code returned by the API.
           example: 200
+        example: 200
         type: integer
       message:
         description: |-
           Human-readable description of the result.
           example: OK
+        example: OK
         type: string
       success:
         description: |-
           Indicates whether the request succeeded.
           example: true
+        example: true
         type: boolean
     type: object
   controllers.StandardResponse:
@@ -267,17 +328,20 @@ definitions:
         description: |-
           HTTP status code returned by the API.
           example: 200
+        example: 200
         type: integer
       data: {}
       message:
         description: |-
           Human-readable description of the result.
           example: OK
+        example: OK
         type: string
       success:
         description: |-
           Indicates whether the request succeeded.
           example: true
+        example: true
         type: boolean
     type: object
   controllers.SummaryCategoryResponse:
@@ -304,6 +368,7 @@ definitions:
         description: |-
           HTTP status code returned by the API.
           example: 200
+        example: 200
         type: integer
       data:
         $ref: '#/definitions/controllers.SummaryResponseData'
@@ -311,11 +376,13 @@ definitions:
         description: |-
           Human-readable description of the result.
           example: OK
+        example: OK
         type: string
       success:
         description: |-
           Indicates whether the request succeeded.
           example: true
+        example: true
         type: boolean
     type: object
   controllers.SummaryResponseData:
@@ -380,15 +447,15 @@ paths:
         "400":
           description: Validation error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse400'
         "401":
           description: Invalid credentials
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse401'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       summary: Authenticate user
       tags:
       - auth
@@ -415,15 +482,15 @@ paths:
         "400":
           description: Validation error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse400'
         "409":
           description: Email already exists
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse409'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       summary: Register a new user account
       tags:
       - auth
@@ -472,15 +539,15 @@ paths:
         "400":
           description: Validation error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse400'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse401'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       security:
       - ApiKeyAuth: []
       summary: List expenses
@@ -513,15 +580,15 @@ paths:
         "400":
           description: Validation error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse400'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse401'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       security:
       - ApiKeyAuth: []
       summary: Create expense
@@ -551,19 +618,19 @@ paths:
         "400":
           description: Invalid expense ID
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse400'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse401'
         "404":
           description: Expense not found
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse404'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       security:
       - ApiKeyAuth: []
       summary: Delete expense
@@ -592,19 +659,19 @@ paths:
         "400":
           description: Invalid expense ID
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse400'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse401'
         "404":
           description: Expense not found
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse404'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       security:
       - ApiKeyAuth: []
       summary: Get expense
@@ -642,19 +709,19 @@ paths:
         "400":
           description: Validation error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse400'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse401'
         "404":
           description: Expense not found
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse404'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       security:
       - ApiKeyAuth: []
       summary: Update expense
@@ -688,15 +755,15 @@ paths:
         "400":
           description: Validation error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse400'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse401'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       security:
       - ApiKeyAuth: []
       summary: Expense summary
@@ -715,7 +782,7 @@ paths:
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse500'
       summary: Health check
       tags:
       - health

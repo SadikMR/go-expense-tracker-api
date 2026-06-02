@@ -43,11 +43,11 @@ func handleServiceError(ctx *beego.Controller, tag string, err error) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        X-User-ID  header    int                    true  "Authenticated user ID (returned after login). Example: 123"
-// @Param        body       body      ExpenseCreateRequest  true  "Expense creation payload"
-// @Success      201        {object}  ExpenseResponseWrapper  "Expense created successfully"
-// @Failure      400        {object}  ErrorResponse            "Validation error"
-// @Failure      401        {object}  ErrorResponse            "Unauthorized"
-// @Failure      500        {object}  ErrorResponse            "Internal server error"
+// @Param        body       body      controllers.ExpenseCreateRequest  true  "Expense creation payload"
+// @Success      201        {object}  controllers.ExpenseResponseWrapper  "Expense created successfully"
+// @Failure      400        {object}  controllers.ErrorResponse400            "Validation error"
+// @Failure      401        {object}  controllers.ErrorResponse401            "Unauthorized"
+// @Failure      500        {object}  controllers.ErrorResponse500            "Internal server error"
 // @Router       /api/v1/expenses [post]
 func (c *ExpenseController) Post() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -97,10 +97,10 @@ func (c *ExpenseController) Post() {
 // @Param        sort_by     query     string  false  "Sort field: amount or expense_date"
 // @Param        sort_order  query     string  false  "Sort direction: asc or desc (default: desc)"
 // @Param        limit       query     int     false  "Maximum number of results returned"
-// @Success      200         {object}  ExpenseListResponse  "Expenses retrieved successfully"
-// @Failure      400         {object}  ErrorResponse        "Validation error"
-// @Failure      401         {object}  ErrorResponse        "Unauthorized"
-// @Failure      500         {object}  ErrorResponse        "Internal server error"
+// @Success      200         {object}  controllers.ExpenseListResponse  "Expenses retrieved successfully"
+// @Failure      400         {object}  controllers.ErrorResponse400        "Validation error"
+// @Failure      401         {object}  controllers.ErrorResponse401        "Unauthorized"
+// @Failure      500         {object}  controllers.ErrorResponse500        "Internal server error"
 // @Router       /api/v1/expenses [get]
 func (c *ExpenseController) Get() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -162,11 +162,11 @@ func (c *ExpenseController) Get() {
 // @Security     ApiKeyAuth
 // @Param        X-User-ID  header    int                    true  "Authenticated user ID (returned after login). Example: 123"
 // @Param        id         path      int                    true  "Expense ID"
-// @Success      200        {object}  ExpenseResponseWrapper  "Expense retrieved successfully"
-// @Failure      400        {object}  ErrorResponse            "Invalid expense ID"
-// @Failure      401        {object}  ErrorResponse            "Unauthorized"
-// @Failure      404        {object}  ErrorResponse            "Expense not found"
-// @Failure      500        {object}  ErrorResponse            "Internal server error"
+// @Success      200        {object}  controllers.ExpenseResponseWrapper  "Expense retrieved successfully"
+// @Failure      400        {object}  controllers.ErrorResponse400            "Invalid expense ID"
+// @Failure      401        {object}  controllers.ErrorResponse401            "Unauthorized"
+// @Failure      404        {object}  controllers.ErrorResponse404            "Expense not found"
+// @Failure      500        {object}  controllers.ErrorResponse500            "Internal server error"
 // @Router       /api/v1/expenses/{id} [get]
 func (c *ExpenseController) GetOne() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -204,12 +204,12 @@ func (c *ExpenseController) GetOne() {
 // @Security     ApiKeyAuth
 // @Param        X-User-ID  header    int                     true  "Authenticated user ID (returned after login). Example: 123"
 // @Param        id         path      int                     true  "Expense ID"
-// @Param        body       body      ExpenseUpdateRequest   true  "Expense update payload"
-// @Success      200        {object}  ExpenseResponseWrapper  "Expense updated successfully"
-// @Failure      400        {object}  ErrorResponse            "Validation error"
-// @Failure      401        {object}  ErrorResponse            "Unauthorized"
-// @Failure      404        {object}  ErrorResponse            "Expense not found"
-// @Failure      500        {object}  ErrorResponse            "Internal server error"
+// @Param        body       body      controllers.ExpenseUpdateRequest   true  "Expense update payload"
+// @Success      200        {object}  controllers.ExpenseResponseWrapper  "Expense updated successfully"
+// @Failure      400        {object}  controllers.ErrorResponse400            "Validation error"
+// @Failure      401        {object}  controllers.ErrorResponse401            "Unauthorized"
+// @Failure      404        {object}  controllers.ErrorResponse404            "Expense not found"
+// @Failure      500        {object}  controllers.ErrorResponse500            "Internal server error"
 // @Router       /api/v1/expenses/{id} [put]
 func (c *ExpenseController) Put() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -264,11 +264,11 @@ func (c *ExpenseController) Put() {
 // @Security     ApiKeyAuth
 // @Param        X-User-ID  header    int                     true  "Authenticated user ID (returned after login). Example: 123"
 // @Param        id         path      int                     true  "Expense ID"
-// @Success      200        {object}  StandardResponse  "Expense deleted successfully"
-// @Failure      400        {object}  ErrorResponse     "Invalid expense ID"
-// @Failure      401        {object}  ErrorResponse     "Unauthorized"
-// @Failure      404        {object}  ErrorResponse     "Expense not found"
-// @Failure      500        {object}  ErrorResponse     "Internal server error"
+// @Success      200        {object}  controllers.StandardResponse  "Expense deleted successfully"
+// @Failure      400        {object}  controllers.ErrorResponse400     "Invalid expense ID"
+// @Failure      401        {object}  controllers.ErrorResponse401     "Unauthorized"
+// @Failure      404        {object}  controllers.ErrorResponse404     "Expense not found"
+// @Failure      500        {object}  controllers.ErrorResponse500     "Internal server error"
 // @Router       /api/v1/expenses/{id} [delete]
 func (c *ExpenseController) Delete() {
 	userID, ok := userIDFromHeader(&c.Controller)
