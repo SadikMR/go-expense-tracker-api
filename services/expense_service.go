@@ -13,7 +13,7 @@ var (
 	ErrExpenseNotFound = errors.New("expense not found")
 )
 
-// CreateExpenseInput holds the validated fields for creating an expense.
+// CreateExpenseInput holds validated fields for creating an expense.
 type CreateExpenseInput struct {
 	Title       string
 	Amount      float64
@@ -22,16 +22,17 @@ type CreateExpenseInput struct {
 	ExpenseDate string
 }
 
-// UpdateExpenseInput holds the validated fields for updating an expense.
+// UpdateExpenseInput holds validated fields for updating an expense.
+// Fields are pointers so omitted values are not treated as zero values.
 type UpdateExpenseInput struct {
-	Title       string
-	Amount      float64
-	Category    string
-	Note        string
-	ExpenseDate string
+	Title       *string
+	Amount      *float64
+	Category    *string
+	Note        *string
+	ExpenseDate *string
 }
 
-// ListExpensesInput holds the optional filter and sort parameters for listing expenses.
+// ListExpensesInput holds optional filter and sort parameters.
 type ListExpensesInput struct {
 	DateFrom  string
 	DateTo    string
@@ -40,8 +41,8 @@ type ListExpensesInput struct {
 	Limit     int
 }
 
-// filterByDate filters expenses by optional date range using direct YYYY-MM-DD string comparison.
-// Reused by both ListExpenses and GetSummary — single source of truth for date filtering.
+// filterByDate filters expenses by optional date range.
+// Reused by both ListExpenses and GetSummary — single source of truth.
 func filterByDate(expenses []models.Expense, dateFrom, dateTo string) []models.Expense {
 	filtered := make([]models.Expense, 0, len(expenses))
 	for _, e := range expenses {
@@ -56,19 +57,68 @@ func filterByDate(expenses []models.Expense, dateFrom, dateTo string) []models.E
 	return filtered
 }
 
+// validateExpenseInput validates expense fields and returns a clean user-facing error.
+// Validation errors use errors.New (no wrap) so controllers can distinguish them
+// from infrastructure errors (which use fmt.Errorf with %w).
+func validateExpenseInput(title string, amount float64, category, expenseDate string) error {
+	if !utils.ValidateRequired(title) {
+		return errors.New("Title is required")
+	}
+	if !utils.ValidatePositiveAmount(amount) {
+		return errors.New("Amount must be greater than zero")
+	}
+	if !utils.ValidateRequired(category) {
+		return errors.New("Category is required")
+	}
+	if !utils.ValidateCategory(category) {
+		return errors.New("Invalid category")
+	}
+	if !utils.ValidateRequired(expenseDate) {
+		return errors.New("Expense date is required")
+	}
+	if !utils.ValidateDate(expenseDate) {
+		return errors.New("Expense date must be in YYYY-MM-DD format")
+	}
+	return nil
+}
+
+func validateExpenseUpdateInput(input UpdateExpenseInput) error {
+	if input.Title == nil && input.Amount == nil && input.Category == nil && input.Note == nil && input.ExpenseDate == nil {
+		return errors.New("At least one field must be provided")
+	}
+	if input.Title != nil {
+		if !utils.ValidateRequired(*input.Title) {
+			return errors.New("Title is required")
+		}
+	}
+	if input.Amount != nil {
+		if !utils.ValidatePositiveAmount(*input.Amount) {
+			return errors.New("Amount must be greater than zero")
+		}
+	}
+	if input.Category != nil {
+		if !utils.ValidateRequired(*input.Category) {
+			return errors.New("Category is required")
+		}
+		if !utils.ValidateCategory(*input.Category) {
+			return errors.New("Invalid category")
+		}
+	}
+	if input.ExpenseDate != nil {
+		if !utils.ValidateRequired(*input.ExpenseDate) {
+			return errors.New("Expense date is required")
+		}
+		if !utils.ValidateDate(*input.ExpenseDate) {
+			return errors.New("Expense date must be in YYYY-MM-DD format")
+		}
+	}
+	return nil
+}
+
 // CreateExpense validates input and creates a new expense for the given user.
 func CreateExpense(userID int, input CreateExpenseInput) (*models.Expense, error) {
-	if !utils.ValidateRequired(input.Title, input.Category, input.ExpenseDate) {
-		return nil, fmt.Errorf("CreateExpense: title, category, and expense_date are required")
-	}
-	if !utils.ValidatePositiveAmount(input.Amount) {
-		return nil, fmt.Errorf("CreateExpense: amount must be greater than zero")
-	}
-	if !utils.ValidateCategory(input.Category) {
-		return nil, fmt.Errorf("CreateExpense: invalid category %q", input.Category)
-	}
-	if !utils.ValidateDate(input.ExpenseDate) {
-		return nil, fmt.Errorf("CreateExpense: expense_date must be in YYYY-MM-DD format")
+	if err := validateExpenseInput(input.Title, input.Amount, input.Category, input.ExpenseDate); err != nil {
+		return nil, err
 	}
 
 	id, err := models.NextExpenseID()
@@ -149,24 +199,25 @@ func UpdateExpense(id, userID int, input UpdateExpenseInput) (*models.Expense, e
 		return nil, err
 	}
 
-	if !utils.ValidateRequired(input.Title, input.Category, input.ExpenseDate) {
-		return nil, fmt.Errorf("UpdateExpense: title, category, and expense_date are required")
-	}
-	if !utils.ValidatePositiveAmount(input.Amount) {
-		return nil, fmt.Errorf("UpdateExpense: amount must be greater than zero")
-	}
-	if !utils.ValidateCategory(input.Category) {
-		return nil, fmt.Errorf("UpdateExpense: invalid category %q", input.Category)
-	}
-	if !utils.ValidateDate(input.ExpenseDate) {
-		return nil, fmt.Errorf("UpdateExpense: expense_date must be in YYYY-MM-DD format")
+	if err := validateExpenseUpdateInput(input); err != nil {
+		return nil, err
 	}
 
-	expense.Title = input.Title
-	expense.Amount = input.Amount
-	expense.Category = input.Category
-	expense.Note = input.Note
-	expense.ExpenseDate = input.ExpenseDate
+	if input.Title != nil {
+		expense.Title = *input.Title
+	}
+	if input.Amount != nil {
+		expense.Amount = *input.Amount
+	}
+	if input.Category != nil {
+		expense.Category = *input.Category
+	}
+	if input.Note != nil {
+		expense.Note = *input.Note
+	}
+	if input.ExpenseDate != nil {
+		expense.ExpenseDate = *input.ExpenseDate
+	}
 
 	if err := models.UpdateExpense(expense); err != nil {
 		return nil, fmt.Errorf("UpdateExpense: %w", err)

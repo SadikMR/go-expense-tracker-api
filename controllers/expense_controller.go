@@ -25,10 +25,30 @@ type expenseInput struct {
 	ExpenseDate string  `json:"expense_date"`
 }
 
+type expenseUpdateInput struct {
+	Title       *string  `json:"title"`
+	Amount      *float64 `json:"amount"`
+	Category    *string  `json:"category"`
+	Note        *string  `json:"note"`
+	ExpenseDate *string  `json:"expense_date"`
+}
+
 // userIDFromHeader reads and parses the X-User-ID header.
-// Returns 0, false if missing or invalid.
 func userIDFromHeader(c *beego.Controller) (int, bool) {
 	return utils.ParseID(c.Ctx.Input.Header("X-User-ID"))
+}
+
+// handleServiceError writes the correct HTTP response based on error type.
+// Validation errors (not wrapped) return 400 with the error message.
+// Infrastructure errors (wrapped with %w) return 500.
+func handleServiceError(ctx *beego.Controller, tag string, err error) {
+	if errors.Unwrap(err) != nil {
+		logs.Error("%s infrastructure error: %v", tag, err)
+		utils.Error(ctx.Ctx, 500, "Internal server error")
+	} else {
+		logs.Warn("%s validation error: %v", tag, err)
+		utils.Error(ctx.Ctx, 400, err.Error())
+	}
 }
 
 // Post creates a new expense for the authenticated user.
@@ -37,11 +57,11 @@ func userIDFromHeader(c *beego.Controller) (int, bool) {
 // @Tags         expenses
 // @Accept       json
 // @Produce      json
-// @Param        X-User-ID  header    int     true  "User ID"
-// @Param        body       body      object  true  "Expense payload"
-// @Success      201        {object}  map[string]interface{}
-// @Failure      400        {object}  map[string]interface{}
-// @Failure      401        {object}  map[string]interface{}
+// @Param        X-User-ID  header    int                     true  "User ID"
+// @Param        body       body      expenseInput            true  "Expense payload"
+// @Success      201        {object}  map[string]interface{}  "Expense created successfully"
+// @Failure      400        {object}  map[string]interface{}  "Validation error"
+// @Failure      401        {object}  map[string]interface{}  "Unauthorized"
 // @Router       /api/v1/expenses [post]
 func (c *ExpenseController) Post() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -70,8 +90,7 @@ func (c *ExpenseController) Post() {
 		ExpenseDate: input.ExpenseDate,
 	})
 	if err != nil {
-		logs.Warn("[Expense] Create validation failed: user_id=%d err=%v", userID, err)
-		utils.Error(c.Ctx, 400, err.Error())
+		handleServiceError(&c.Controller, "[Expense] Post", err)
 		return
 	}
 
@@ -79,15 +98,20 @@ func (c *ExpenseController) Post() {
 	utils.Success(c.Ctx, 201, "Expense created successfully", expense)
 }
 
-// Get returns either a list of expenses or a single expense based on the route.
+// Get returns a list of expenses or a single expense.
 // @Summary      List expenses
-// @Description  Returns expenses for the authenticated user, capped by limit
+// @Description  Returns expenses for the authenticated user with optional filters and sorting
 // @Tags         expenses
 // @Produce      json
-// @Param        X-User-ID  header    int  true   "User ID"
-// @Param        limit      query     int  false  "Max number of results"
-// @Success      200        {object}  map[string]interface{}
-// @Failure      401        {object}  map[string]interface{}
+// @Param        X-User-ID   header    int                     true   "User ID"
+// @Param        date_from   query     string                  false  "Filter from date (YYYY-MM-DD)"
+// @Param        date_to     query     string                  false  "Filter to date (YYYY-MM-DD)"
+// @Param        sort_by     query     string                  false  "Sort field: amount or expense_date"
+// @Param        sort_order  query     string                  false  "Sort direction: asc or desc (default: desc)"
+// @Param        limit       query     int                     false  "Max number of results"
+// @Success      200         {object}  map[string]interface{}  "Expenses retrieved"
+// @Failure      400         {object}  map[string]interface{}  "Validation error"
+// @Failure      401         {object}  map[string]interface{}  "Unauthorized"
 // @Router       /api/v1/expenses [get]
 func (c *ExpenseController) Get() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -137,7 +161,7 @@ func (c *ExpenseController) Get() {
 	}
 
 	logs.Info("[Expense] List: user_id=%d count=%d", userID, len(expenses))
-	utils.Success(c.Ctx, 200, "Expenses retrieved successfully", expenses)
+	utils.Success(c.Ctx, 200, "Expenses retrieved", expenses)
 }
 
 // getOne handles GET /api/v1/expenses/:id
@@ -168,13 +192,13 @@ func (c *ExpenseController) getOne(userID int, idParam string) {
 // @Tags         expenses
 // @Accept       json
 // @Produce      json
-// @Param        X-User-ID  header    int     true  "User ID"
-// @Param        id         path      int     true  "Expense ID"
-// @Param        body       body      object  true  "Expense payload"
-// @Success      200        {object}  map[string]interface{}
-// @Failure      400        {object}  map[string]interface{}
-// @Failure      401        {object}  map[string]interface{}
-// @Failure      404        {object}  map[string]interface{}
+// @Param        X-User-ID  header    int                     true  "User ID"
+// @Param        id         path      int                     true  "Expense ID"
+// @Param        body       body      expenseInput            true  "Expense payload"
+// @Success      200        {object}  map[string]interface{}  "Expense updated successfully"
+// @Failure      400        {object}  map[string]interface{}  "Validation error"
+// @Failure      401        {object}  map[string]interface{}  "Unauthorized"
+// @Failure      404        {object}  map[string]interface{}  "Expense not found"
 // @Router       /api/v1/expenses/{id} [put]
 func (c *ExpenseController) Put() {
 	userID, ok := userIDFromHeader(&c.Controller)
@@ -195,7 +219,7 @@ func (c *ExpenseController) Put() {
 		return
 	}
 
-	var input expenseInput
+	var input expenseUpdateInput
 	if err := json.Unmarshal(body, &input); err != nil {
 		utils.Error(c.Ctx, 400, "Invalid request body")
 		return
@@ -213,8 +237,7 @@ func (c *ExpenseController) Put() {
 		return
 	}
 	if err != nil {
-		logs.Warn("[Expense] Update failed: id=%d user_id=%d err=%v", id, userID, err)
-		utils.Error(c.Ctx, 400, err.Error())
+		handleServiceError(&c.Controller, "[Expense] Put", err)
 		return
 	}
 
@@ -227,12 +250,12 @@ func (c *ExpenseController) Put() {
 // @Description  Deletes an expense owned by the authenticated user
 // @Tags         expenses
 // @Produce      json
-// @Param        X-User-ID  header  int  true  "User ID"
-// @Param        id         path    int  true  "Expense ID"
-// @Success      200        {object}  map[string]interface{}
-// @Failure      400        {object}  map[string]interface{}
-// @Failure      401        {object}  map[string]interface{}
-// @Failure      404        {object}  map[string]interface{}
+// @Param        X-User-ID  header    int                     true  "User ID"
+// @Param        id         path      int                     true  "Expense ID"
+// @Success      200        {object}  map[string]interface{}  "Expense deleted successfully"
+// @Failure      400        {object}  map[string]interface{}  "Invalid ID"
+// @Failure      401        {object}  map[string]interface{}  "Unauthorized"
+// @Failure      404        {object}  map[string]interface{}  "Expense not found"
 // @Router       /api/v1/expenses/{id} [delete]
 func (c *ExpenseController) Delete() {
 	userID, ok := userIDFromHeader(&c.Controller)
