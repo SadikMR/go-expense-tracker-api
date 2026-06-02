@@ -55,7 +55,11 @@ Important settings:
 - `expenses_csv_path` — optional explicit expenses CSV path
 - `log_dir` — optional log directory for production log files
 
-Copy `conf/app.conf.example` to `conf/app.conf` and provide the proper values before running the app.
+Copy `conf/app.conf.example` to `conf/app.conf` and provide the proper values before running the app:
+
+```bash
+cp conf/app.conf.example conf/app.conf
+```
 
 Environment variables that can override config values:
 
